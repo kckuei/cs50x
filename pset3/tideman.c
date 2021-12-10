@@ -185,7 +185,7 @@ void add_pairs(void)
                 p.winner = i;
                 p.loser = j;
                 pairs[pair_count] = p;
-                                printf("winner=%i [%s], loser=%i [%s]\n",  p.winner, candidates[p.winner], p.loser, candidates[p.loser]);
+                printf("winner=%i [%s], loser=%i [%s]\n",  p.winner, candidates[p.winner], p.loser, candidates[p.loser]);
                 pair_count += 1;
             }
             else if (preferences[i][j] < preferences[j][i])
@@ -212,6 +212,20 @@ void sort_pairs(void)
     // Sort pairs in order by decreasing strength of victor
     // strength of victor defined as number of voters who prefer the preferred candidate
 
+    // Compute the strengths for each pair
+    int strengths[pair_count];
+    for (int k = 0; k < pair_count; k++)
+    {
+        int i = pairs[k].winner;
+        int j = pairs[k].loser;
+
+        strengths[k] = preferences[i][j] - preferences[j][i];
+
+        printf("strength of victor %i, %i: %i\n", i, j, strengths[k]);
+    }
+
+    // Use the computed strengths to sort the pairs in order of decreasing strength
+
     return;
 }
 
@@ -219,7 +233,12 @@ void sort_pairs(void)
 void lock_pairs(void)
 {
     // TODO
-    // Update locked to create the locked graphy by adding all edges in decreasing order of victory strength, as long as there is no cycle
+    // Update locked to create the locked graphy by adding all edges in
+    // decreasing order of victory strength, as long as there is no cycle
+
+    // note: true means we have an rrow going from i->j
+    // note: need mechanism for detecting if there is a cycle/path
+
     return;
 }
 
@@ -229,6 +248,8 @@ void print_winner(void)
     // TODO
     // print out the winner of the election, who will be the source of the graph
     // you may assume there will not be more than one source
+
+    // how identify the 'source'? whiciever candidate doesn't hvae anyone pointing at them
 
     return;
 }
