@@ -106,6 +106,7 @@ bool vote(int rank, string name, int ranks[])
     // if candidate found, update ranks and return true. ranks[i] is the voters ith preference
     // if no candidate found, don't update any ranks and return false
     // note: use strcmp() to compare two strings; returns 0 if equal
+
     for (int k = 0; k < candidate_count; k++)
     {
         if (strcmp(name, candidates[k]) == 0)
@@ -122,10 +123,11 @@ void record_preferences(int ranks[])
 {
     // TODO
     // update the global preference array variable based on the current voter's ranks
+
     // loop on i rows
     for (int i = 0; i < candidate_count; i++)
     {
-        // find index position of i in ranks array
+        // find index position of preferred candidate 'i' in ranks array
         int index;
         for (int k = 0; k < candidate_count; k++)
         {
@@ -139,7 +141,9 @@ void record_preferences(int ranks[])
         // loop on j columns
         for (int j = 0; j < candidate_count; j++)
         {
-            // loop on lower rank position and update preference if match column j
+            // loop on the lower ranked candidates; note we start from the index + 1
+            // only if the candidate rank == j do we increment to acknolwedge that i is preferred to j
+            // b/c they are lower ranked
             for (int m = index + 1; m < candidate_count; m++)
             {
                 if (ranks[m] == j)
@@ -160,6 +164,44 @@ void add_pairs(void)
     // TODO
     // add each pair of candidates to pairs array if one candidate is preferred over the other
     // update global variable pair_count to be the total number of pairs
+
+    // The function should add all pairs of candidates where one candidate is preferred
+    // to the pairs array. A pair of candidates who are tied (one is not preferred over
+    // the other) should not be added to the array.
+
+    // The function should update the global variable pair_count to be the number of pairs
+    // of candidates. (The pairs should thus all be stored between pairs[0] and
+    // pairs[pair_count - 1], inclusive).
+
+    int j_start = 0;
+    for (int i = 0; i < candidate_count; i++)
+    {
+        for (int j = j_start; j < candidate_count; j++)
+        {
+            // compare the cross diaganols to check if a candidate is preferred for given pair
+            pair p;
+            if (preferences[i][j] > preferences[j][i])
+            {
+                p.winner = i;
+                p.loser = j;
+                pairs[pair_count] = p;
+                                printf("winner=%i [%s], loser=%i [%s]\n",  p.winner, candidates[p.winner], p.loser, candidates[p.loser]);
+                pair_count += 1;
+            }
+            else if (preferences[i][j] < preferences[j][i])
+            {
+                p.winner = j;
+                p.loser = i;
+                pairs[pair_count] = p;
+                printf("winner=%i [%s], loser=%i [%s]\n",  p.winner, candidates[p.winner], p.loser, candidates[p.loser]);
+                pair_count += 1;
+            }
+        }
+
+        j_start += 1;
+    }
+    printf("Number of pairs: %i\n",  pair_count);
+
     return;
 }
 
@@ -168,6 +210,8 @@ void sort_pairs(void)
 {
     // TODO
     // Sort pairs in order by decreasing strength of victor
+    // strength of victor defined as number of voters who prefer the preferred candidate
+
     return;
 }
 
@@ -183,7 +227,8 @@ void lock_pairs(void)
 void print_winner(void)
 {
     // TODO
-    // print out the winnnter of the election, who will be the source of the graph
+    // print out the winner of the election, who will be the source of the graph
     // you may assume there will not be more than one source
+
     return;
 }
