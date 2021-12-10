@@ -122,11 +122,33 @@ void record_preferences(int ranks[])
 {
     // TODO
     // update the global preference array variable based on the current voter's ranks
+    // loop on i rows
     for (int i = 0; i < candidate_count; i++)
     {
+        // find index position of i in ranks array
+        int index;
+        for (int k = 0; k < candidate_count; k++)
+        {
+            if (ranks[k] == i)
+            {
+                index = k;
+                break;
+            }
+        }
+
+        // loop on j columns
         for (int j = 0; j < candidate_count; j++)
         {
-            preferences[i][j]
+            // loop on lower rank position and update preference if match column j
+            for (int m = index + 1; m < candidate_count; m++)
+            {
+                if (ranks[m] == j)
+                {
+                    preferences[i][j] += 1;
+                    // Check assignments
+                    printf("i=%i, j=%i, value=%i\n", i, j, preferences[i][j]);
+                }
+            }
         }
     }
     return;
