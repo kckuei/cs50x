@@ -1,5 +1,6 @@
 #include <cs50.h>
 #include <stdio.h>
+#include <string.h>
 
 // Max number of candidates
 #define MAX 9
@@ -104,6 +105,15 @@ bool vote(int rank, string name, int ranks[])
     // look for a candidate called name
     // if candidate found, update ranks and return true. ranks[i] is the voters ith preference
     // if no candidate found, don't update any ranks and return false
+    // note: use strcmp() to compare two strings; returns 0 if equal
+    for (int k = 0; k < candidate_count; k++)
+    {
+        if (strcmp(name, candidates[k]) == 0)
+        {
+            ranks[rank] = k;
+            return true;
+        }
+    }
     return false;
 }
 
@@ -112,6 +122,13 @@ void record_preferences(int ranks[])
 {
     // TODO
     // update the global preference array variable based on the current voter's ranks
+    for (int i = 0; i < candidate_count; i++)
+    {
+        for (int j = 0; j < candidate_count; j++)
+        {
+            preferences[i][j]
+        }
+    }
     return;
 }
 
@@ -148,4 +165,3 @@ void print_winner(void)
     // you may assume there will not be more than one source
     return;
 }
-
