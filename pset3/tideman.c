@@ -34,6 +34,7 @@ void add_pairs(void);
 void sort_pairs(void);
 void lock_pairs(void);
 void print_winner(void);
+void print_preference(void);
 
 int main(int argc, string argv[])
 {
@@ -90,6 +91,8 @@ int main(int argc, string argv[])
 
         printf("\n");
     }
+
+    print_preference();
 
     add_pairs();
     sort_pairs();
@@ -212,20 +215,24 @@ void sort_pairs(void)
     // Sort pairs in order by decreasing strength of victor
     // strength of victor defined as number of voters who prefer the preferred candidate
 
-    // Compute the strengths for each pair
-    int strengths[pair_count];
-    for (int k = 0; k < pair_count; k++)
+    // Use bubblesort to sort pairs based on strength of victory
+    // for each loop, decrement the number of positions checked
+    for (int i = pair_count - 1; i >= 0 ; i--)
     {
-        int i = pairs[k].winner;
-        int j = pairs[k].loser;
+        // each loop, only need check up to max positions
+        for (int j = 0; j <= i - 1; j++)
+        {
+            // if current votes less than next pair, swap their position
+            if ((preferences[pairs[j].winner][pairs[j].loser]) < (preferences[pairs[j + 1].winner][pairs[j + 1].loser]))
+            {
+                pair temp = pairs[j];
 
-        strengths[k] = preferences[i][j] - preferences[j][i];
+                pairs[j] = pairs[j + 1];
 
-        printf("strength of victor %i, %i: %i\n", i, j, strengths[k]);
+                pairs[j + 1] = temp;
+            }
+        }
     }
-
-    // Use the computed strengths to sort the pairs in order of decreasing strength
-
     return;
 }
 
@@ -238,7 +245,10 @@ void lock_pairs(void)
 
     // note: true means we have an rrow going from i->j
     // note: need mechanism for detecting if there is a cycle/path
-
+    for (int i = 0; i < pair_count; i++)
+    {
+        locked[pairs[i].winner][pairs[i].loser] = true;
+    }
     return;
 }
 
@@ -249,7 +259,37 @@ void print_winner(void)
     // print out the winner of the election, who will be the source of the graph
     // you may assume there will not be more than one source
 
-    // how identify the 'source'? whiciever candidate doesn't hvae anyone pointing at them
-
+    // The source is whichever candidate that doesn't have anyone pointing at them,
+    // all columns are false in preferences
+    // loop on columns
+    for (int i = 0; i < candidate_count; i++)
+    {
+        int counter = 0;
+        // loop on rows
+        for (int j = 0; j < candidate_count; j++)
+        {
+            if (locked[j][i] == false)
+            {
+                counter += 1;
+            }
+        }
+        if (counter == candidate_count)
+        {
+            printf("%s\n", candidates[i]);
+            break;
+        }
+    }
     return;
+}
+
+void print_preference(void)
+{
+    for (int i = 0; i < candidate_count; i++)
+    {
+        for (int j = 0; j < candidate_count; j++)
+        {
+            printf("%i ", preferences[i][j]);
+        }
+        printf("\n");
+    }
 }
