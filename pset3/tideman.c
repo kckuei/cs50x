@@ -33,6 +33,7 @@ void record_preferences(int ranks[]);
 void add_pairs(void);
 void sort_pairs(void);
 void lock_pairs(void);
+bool cycle(int end, int cycle_start);
 void print_winner(void);
 void print_preference(void);
 
@@ -225,10 +226,8 @@ void sort_pairs(void)
             // if current votes less than next pair, swap their position
             if ((preferences[pairs[j].winner][pairs[j].loser]) < (preferences[pairs[j + 1].winner][pairs[j + 1].loser]))
             {
-                pair temp = pairs[j];
-
+                pair temp = pairs[j]
                 pairs[j] = pairs[j + 1];
-
                 pairs[j + 1] = temp;
             }
         }
@@ -243,14 +242,44 @@ void lock_pairs(void)
     // Update locked to create the locked graphy by adding all edges in
     // decreasing order of victory strength, as long as there is no cycle
 
-    // note: true means we have an rrow going from i->j
-    // note: need mechanism for detecting if there is a cycle/path
     for (int i = 0; i < pair_count; i++)
     {
-        locked[pairs[i].winner][pairs[i].loser] = true;
+        // lock the connection if it does not create a cycle
+        if (!cycle(pairs[i].loser, pairs[i].winner))
+        {
+            locked[pairs[i].winner][pairs[i].loser] = true;
+        }
     }
     return;
 }
+
+
+// recursive function for checking connections to seeing if a cycle is created
+bool cycle(int end, int cycle_start)
+{
+    // end is loser
+    // cycle_start is the original winner
+
+    // Return true if there is a cycle created (base case)
+    if (end == cycle_start)
+    {
+        return true;
+    }
+
+    // Loop through candidates (recursive case)
+    for (int i = 0; i < candidate_count; i++)
+    {
+        if (locked[end][i])
+        {
+            if (cycle(i, cycle_start))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 // Print the winner of the election
 void print_winner(void)
