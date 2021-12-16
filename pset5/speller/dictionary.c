@@ -68,9 +68,10 @@ unsigned int hash(const char *word)
 bool load(const char *dictionary)
 {
     // TODO
-    // You may also assume that dictionary will contain at least one word, that no word will be longer
+    // Note: You may assume that dictionary will contain at least one word, that no word will be longer
     // than LENGTH (a constant defined in dictionary.h) characters, that no word will appear more than once,
-    // that each word will contain only lowercase alphabetical characters and possibly apostrophes, and that no word will start with an apostrophe.
+    // that each word will contain only lowercase alphabetical characters and possibly apostrophes, and
+    // that no word will start with an apostrophe.
 
     // open dictionary file
     FILE *file = fopen(dictionary, "r");
@@ -79,7 +80,6 @@ bool load(const char *dictionary)
         printf("Could not open %s.\n", dictionary);
         return false;
     }
-
 
     // initialize string of max word length, including '\0' at end of word
     char word[LENGTH + 1];
@@ -129,14 +129,24 @@ unsigned int size(void)
     // TODO
     // return number of words in dictionary
 
-    word_count = 0;
-
+    // // Uncomment to re-calculate size instead of using the word_count from load()
+    // // reset word_count and initialize pointer tmp
+    // word_count = 0;
+    // node *tmp = NULL;
+    // // loop on hash slots
     // for (int i = 0; i < N; i++)
     // {
-    //     node *tmp = table[i];
-    //     while (!(table[i]->next == NULL))
+    //     // check if hash points to node
+    //     tmp = table[i];
+    //     if (tmp->next != NULL)
     //     {
-    //         printf("%s\n",table[i]->word);
+    //         word_count += 1;
+    //     }
+    //     // loop on linked list
+    //     while ((tmp->next != NULL))
+    //     {
+    //         tmp = tmp->next;
+    //         word_count +=1;
     //     }
     // }
 
