@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <strings.h>
 
 #include "dictionary.h"
 
@@ -36,15 +37,26 @@ bool check(const char *word)
     // should only return true for words that are in the dictionary (match characters/length)
     // assume words upper/lower, alphabetical or apostrophes
 
-    //  strcasecmp (from strings.h) to compare strings case-insensitively
+    // hash word to obtain a hash value/index
+    unsigned int index = hash(word);
 
-    //hash word to obtain a hash value
-    // access linked list at that index in the hash table
-    // traverse linked list, looking for the word (strcasecmp)
-        // setup cursor pointer to first node, check, and continue until find word
-        // cursor = cursor->node
-        // STOP when NULL, word does not exist in dictionary
+    // access linked list at that index in the hash table (head)
+    node *ptr = table[index];
 
+    // loop on linked list until find word
+    while (ptr != NULL)
+    {
+        // compare strings while ignoring case
+        if (strcasecmp(word, ptr->word) == 0)
+        {
+            return true;
+        }
+
+        // advance pointer
+        ptr = ptr->next;
+    }
+
+    // otherwise return false
     return false;
 }
 
@@ -61,6 +73,15 @@ unsigned int hash(const char *word)
     // if value greater than N, can take %N to get appropriate value in range
     // hash options, First letter -> 26, First two letters, math using all letters
 
+
+    // unsigned long hash = 5381;
+    // int c;
+    // while ((c = toupper(*word++)))
+    // {
+    //     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    // }
+    // return hash % N;
+
     return 0;
 }
 
@@ -75,51 +96,60 @@ bool load(const char *dictionary)
 
     // open dictionary file
     FILE *file = fopen(dictionary, "r");
+
+    // check if valid open
     if (file == NULL)
     {
         printf("Could not open %s.\n", dictionary);
         return false;
     }
 
-    // initialize string of max word length, including '\0' at end of word
+    // initialize string of max word length (+1 for '\0' at end of word)
     char word[LENGTH + 1];
 
     // read strings from one at a time from file
     // note: fscanf will return EOF once it reached end of file
     while (fscanf(file, "%s", word) != EOF)
     {
-        // increment word count
-        // printf("%s\n", word);
-        word_count += 1;
-
-        // create a new node for each word / allocate memory
+        // create a new node for each word and allocate memory
         node *n = malloc(sizeof(node));
+
+        // check if memory allocation valid
         if (n == NULL)
         {
             printf("MALLOC: Memory allocation error.\n");
             return false;
         }
 
+
         // copy a string into a destination (into n arrow array word)
         strcpy(n->word, word);
-        n->next = NULL;
+        // n->next = NULL;
 
-        // hash word to obtain a has value
+        // hash word to obtain a hash value/index
         int index = hash(word);
 
-        // insert node into hash table at that location
-        if (table[index] == NULL)
-        {
-            table[index] = n;
-        }
-        else
-        {
+        // // insert node into hash table at that location
+        // if (table[index] == NULL)
+        // {
+        //     table[index] = n;
+        // }
+        // else
+        // {
             // set new node pointer
             n->next = table[index];
             // reset head to new node
             table[index] = n;
-        }
+        // }
+
+        // increment word count
+        // printf("%s\n", word);
+        word_count += 1;
     }
+    // close file
+    fclose(file);
+
+    // sucessful load
     return true;
 }
 
@@ -150,7 +180,7 @@ unsigned int size(void)
     //     }
     // }
 
-    printf("Word count: %i\n", word_count);
+    // printf("Word count: %i\n", word_count);
 
     return word_count;
 }
@@ -162,8 +192,30 @@ bool unload(void)
     // call free on any memory that has been allocated, and return true if it is able to
     // must iterate over hash table and nodes in linked lists
     // cursor at first node, tmp at first node
-    // cursor = cursor->next
-    // free(tmp)
-    // repeat
+
+
+    for (int i = 0; i < N; i++)
+    {
+        node *pointer = table[i];
+
+        while (pointer != NULL)
+        {
+            // create temp pointer to current pointer
+            node *temp = pointer;
+
+            // advance current pointer to next node
+            pointer = pointer->next;
+
+            // free temp pointer
+            free(temp);
+        }
+
+        if (i == N-1 && pointer == NULL)
+        {
+            return true;
+        }
+    }
+
+
     return false;
 }
