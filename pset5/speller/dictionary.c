@@ -19,7 +19,7 @@ node;
 
 // Number of buckets in hash table
 // Can play with this value for optimizing/minimizing run time
-const unsigned int N = 1;
+const unsigned int N = 2000;
 
 // Hash table
 node *table[N];
@@ -67,22 +67,14 @@ unsigned int hash(const char *word)
     // hash function must be insensitive to case
     // hash fcn takes a word, outputs a number index into an array to place the word
 
-    // input: word, alphabetical, possibly apostrophes
-    // out 0 to N-1, inclusive
-    // deterministic
-    // if value greater than N, can take %N to get appropriate value in range
-    // hash options, First letter -> 26, First two letters, math using all letters
-
-
-    // unsigned long hash = 5381;
-    // int c;
-    // while ((c = toupper(*word++)))
-    // {
-    //     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-    // }
-    // return hash % N;
-
-    return 0;
+    // use djb2 by Dan Bernstein (http://www.cse.yorku.ca/~oz/hash.html)
+    unsigned long hash = 5381;
+    int c;
+    while ((c = tolower(*word++)))
+    {
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+    }
+    return hash % N;
 }
 
 // Loads dictionary into memory, returning true if successful, else false
@@ -93,6 +85,7 @@ bool load(const char *dictionary)
     // than LENGTH (a constant defined in dictionary.h) characters, that no word will appear more than once,
     // that each word will contain only lowercase alphabetical characters and possibly apostrophes, and
     // that no word will start with an apostrophe.
+
 
     // open dictionary file
     FILE *file = fopen(dictionary, "r");
@@ -107,8 +100,7 @@ bool load(const char *dictionary)
     // initialize string of max word length (+1 for '\0' at end of word)
     char word[LENGTH + 1];
 
-    // read strings from one at a time from file
-    // note: fscanf will return EOF once it reached end of file
+    // read strings from one at a time from file (fscanf returns EOF once end of file reached)
     while (fscanf(file, "%s", word) != EOF)
     {
         // create a new node for each word and allocate memory
@@ -121,30 +113,32 @@ bool load(const char *dictionary)
             return false;
         }
 
-
-        // copy a string into a destination (into n arrow array word)
+        // copy the word to the node and set the next pointer to NULL
         strcpy(n->word, word);
-        // n->next = NULL;
+        n->next = NULL;
 
         // hash word to obtain a hash value/index
-        int index = hash(word);
+        int hash_index = hash(word);
 
-        // // insert node into hash table at that location
-        // if (table[index] == NULL)
-        // {
-        //     table[index] = n;
-        // }
-        // else
-        // {
-            // set new node pointer
-            n->next = table[index];
+        // if no node at the hash_index, insert the node pointer directly
+        if (table[hash_index] == NULL)
+        {
+            table[hash_index] = n;
+        }
+        // otherwise add to existing linked list
+        else
+        {
+            // set the pointer of the new node to the head
+            n->next = table[hash_index];
+
             // reset head to new node
-            table[index] = n;
-        // }
+            table[hash_index] = n;
+        }
 
         // increment word count
-        // printf("%s\n", word);
         word_count += 1;
+
+        // printf("%s\n", word);
     }
     // close file
     fclose(file);
@@ -189,15 +183,14 @@ unsigned int size(void)
 bool unload(void)
 {
     // TODO
-    // call free on any memory that has been allocated, and return true if it is able to
-    // must iterate over hash table and nodes in linked lists
-    // cursor at first node, tmp at first node
 
-
+    // loop on hash table
     for (int i = 0; i < N; i++)
     {
+        // initialize pointer to head of linked list
         node *pointer = table[i];
 
+        // loop on linked list
         while (pointer != NULL)
         {
             // create temp pointer to current pointer
@@ -210,7 +203,8 @@ bool unload(void)
             free(temp);
         }
 
-        if (i == N-1 && pointer == NULL)
+        // sucuessfully freed linked list nodes, exit and return true
+        if (i == N - 1 && pointer == NULL)
         {
             return true;
         }
