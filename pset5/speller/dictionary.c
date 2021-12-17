@@ -1,4 +1,12 @@
 // Implements a dictionary's functionality
+/*
+Some comments on performance:
+
+    using N = 1 for the hash table: time = 7.41s
+    using N = 2000 with dbjb: time = 0.07s          x100 improvement
+    using N = 10000 with dbjb: time = 0.05s         x150 improvement
+
+*/
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -19,7 +27,7 @@ node;
 
 // Number of buckets in hash table
 // Can play with this value for optimizing/minimizing run time
-const unsigned int N = 2000;
+const unsigned int N = 10000;
 
 // Hash table
 node *table[N];
@@ -75,6 +83,8 @@ unsigned int hash(const char *word)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
     }
     return hash % N;
+
+    // return 0;
 }
 
 // Loads dictionary into memory, returning true if successful, else false
