@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        <title>Trivia!</title>
+    </head>
+    <body>
+
+        <div class="jumbotron">
+            <h1>Trivia!</h1>
+        </div>
+
+        <div class="container">
+
+            <div class="section">
+                <h2>Part 1: Multiple Choice </h2>
+                <hr>
+
+                <!-- TODO: Add multiple choice question here -->
+                <h3 class="prompt">What is love?</h3>
+                <input class="answer" type="button" value="never gonna give you up">
+                <input class="answer"type="button" value="baby don't hurt me">
+                <input class="answer"type="button" value="sail across the seven seas">
+                <input class="answer"type="button" value="it's rollin 'round the bend">
+                <input class="answer"type="button" value="take me home, country roads">
+                <div id="outputQ1" class="outputText"> </div>
+            </div>
+
+            <div class="section">
+                <h2>Part 2: Free Response</h2>
+                <hr>
+
+                <!-- TODO: Add free response question here -->
+                <h3 class="prompt">This fruit tastes great on pizza and and goes great with ham...</h3>
+                <input id="textInput" type="text" autocomplete="off" placeholder="Hint: it's flesh is yellow!">
+                <input id="submit" type="button" value="Check Answer">
+                <div id="outputQ2" class="outputText"> </div>
+            </div>
+
+        </div>
+    </body>
+
+    <script>
+
+        // TODO: Add code to check answers to questions
+
+        // Define selectors
+        output1 = document.querySelector("#outputQ1");
+        output2 = document.querySelector("#outputQ2");
+        allButtonsQ1 = document.querySelectorAll(".answer");
+        textInput = document.querySelector("#textInput")
+        submitButton = document.querySelector("#submit");
+
+        // Function for checking Q1 button selections
+        function checkQ1(event) {
+            if (event.srcElement.value == "baby don't hurt me") {
+                alert("Meowth, that's right!");
+                output1.innerHTML = "Correct";
+                output1.innerHTML +=  "<br />"  + "<image src=https://upload.wikimedia.org/wikipedia/en/a/a8/HaddawayWhatIsLoveMaxiCDCover.jpg>";
+                output1.style.color = "green";
+            }
+            else {
+                alert("Meowth, that's wrong!");
+                output1.innerHTML = "Incorrect";
+                output1.style.color = "red";
+            }
+            return
+        }
+
+        // Assign click on callbacks to all Q1 buttons
+        for (let i=0; i < allButtonsQ1.length; i++) {
+            allButtonsQ1[i].addEventListener("click", checkQ1)
+        }
+
+        // Function checking Q2 submission
+        function checkQ2() {
+            if (textInput.value.toLowerCase() == "pineapple") {
+                alert("Meowth, that's right!");
+                output2.innerHTML = "Correct";
+                output2.innerHTML +=  "<br />"  + "<image src=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvlomqj8UM7ATIY-a_cHFxyYClTeLPajGb-g&usqp=CAU>";
+                output2.style.color = "green";
+            }
+            else {
+                alert("Meowth, that's wrong!");
+                output2.innerHTML = "Incorrect";
+                output2.style.color = "red";
+            }
+            return
+        }
+
+        // Assign callback to submit button
+        submitButton.addEventListener("click", checkQ2);
+
+        textInput.addEventListener("keypress", function (event) {
+            if (event.key == 'Enter') {
+                checkQ2(event);
+            }
+        })
+
+    </script>
+</html>
