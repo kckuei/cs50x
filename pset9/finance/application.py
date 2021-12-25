@@ -49,16 +49,34 @@ def index():
     """Show portfolio of stocks"""
 
     # display a table with all current users stocks, number of shares of each, current price of each stock, and total value of each holding
-    # display the user's current cash balance
+    # display the user's current cash balance and total
 
+    # Look up the session users_id
+    # Look up their portfolio for number of shares of each holding
+    # Look up the current stock prices
+    #   lookup(symbol)
+    # Compute the total value
+    # Pass into a table
 
-    # [LEFT OFF HERE]
-    # Maybe should re-implement table as TRANSACTIONS
-    # Add one other table with current portfolio
-    #
+    # Get user cash
+    rows = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+    cash = rows[0]["cash"]
 
+    # Get the holdings
+    rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? ORDER BY symbol ASC", session["user_id"])
+    holdings = []
+    if rows:
+        for row in rows:
+            result = lookup(row['symbol'])
+            result["shares"] = row["shares"]
+            result["total"] = result["shares"]*result["price"]
+            holdings.append(result)
 
-    return render_template("index.html")
+    # Get total value
+    stock_value = sum([x["total"] for x in holdings])
+    total = cash + stock_value
+
+    return render_template("index.html", holdings=holdings, cash=cash, total=total)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -113,19 +131,36 @@ def buy():
         # Get the transaction time
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Add new table for keeping track of purchases
-        # CREATE TABLE purchases (transac_time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER, price NUMERIC);
-        # CREATE UNIQUE INDEX transac_time ON purchases (transac_time)
+        # Add transactions table
+        # CREATE TABLE transactions (time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, type TEXT NOT NULL, shares INTEGER, price NUMERIC);
+        # CREATE UNIQUE INDEX time ON transactions (time);
 
-        # Update purchase table
-        db.execute("INSERT INTO purchases (transac_time, users_id, symbol, shares, price) VALUES (?, ?, ?, ?, ?)",
-                    now, session["user_id"], symbol, shares, price)
+        # Add transaction to transactions table
+        db.execute("INSERT INTO transactions (time, users_id, symbol, type, shares, price) VALUES (?, ?, ?, ?, ?, ?)",
+                    now, session["user_id"], symbol, "BUY", shares, price)
+
+
+        # Update portfolios table
+        # CREATE TABLE portfolios (users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER);
+        # CREATE UNIQUE INDEX symbol ON portfolios (symbol);
+
+        # Check for existing entry on symbol
+        rows = db.execute("SELECT * FROM portfolios WHERE symbol = ?", symbol)
+        # If present, update shares
+        if rows:
+            db.execute("UPDATE portfolios SET shares = ?", rows[0]["shares"] + shares)
+        # Otherwise create new entry
+        else:
+            db.execute("INSERT INTO portfolios (users_id, symbol, shares) VALUES (?, ?, ?)", session["user_id"], symbol, shares)
+        # Remove rows with zero shares
+        db.execute("DELETE FROM portfolios WHERE shares = 0")
+
 
         # Update cash
         db.execute("UPDATE users SET cash = ?  WHERE id = ?", funds - price, session["user_id"])
 
-        # Render an apology without completing a purchase
-        return render_template("index.html")
+        # Redirect to index route
+        return redirect("/")
 
     # Use route reached by GET
     else:

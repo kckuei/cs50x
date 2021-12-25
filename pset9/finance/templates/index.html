@@ -16,34 +16,26 @@
             </tr>
         </thead>
        <tbody>
-
+           {% for holding in holdings %}
                 <tr>
-                    <td class="text-start">AMZN</td>
-                    <td class="text-start">Amazon.com Inc.</td>
-                    <td class="text-end">1</td>
-                    <td class="text-end">$3,421.37</td>
-                    <td class="text-end">$3,421.37</td>
+                    <td class="text-start">{{ holding.symbol }}</td>
+                    <td class="text-start">{{ holding.name }}</td>
+                    <td class="text-end">{{ holding.shares }}</td>
+                    <td class="text-end">${{ holding.price }}</td>
+                    <td class="text-end">${{ holding.total }}</td>
                 </tr>
-
-                <tr>
-                    <td class="text-start">MSFT</td>
-                    <td class="text-start">Microsoft Corporation</td>
-                    <td class="text-end">5</td>
-                    <td class="text-end">$334.69</td>
-                    <td class="text-end">$1,673.45</td>
-                </tr>
-
+            {% endfor %}
         </tbody>
 
-        <!--<tfoot>-->
-        <!--    <tr>-->
-        <!--        <td class="border-0 fw-bold text-end" colspan="4">Cash</td>-->
-        <!--        <td class="border-0 text-end">$4,905.18</td>-->
-        <!--    </tr>-->
-        <!--    <tr>-->
-        <!--        <td class="border-0 fw-bold text-end" colspan="4">TOTAL</td>-->
-        <!--        <td class="border-0 w-bold text-end">$10,000.00</td>-->
-        <!--    </tr>-->
-        <!--</tfoot>-->
+        <tfoot>
+            <tr>
+                <td class="border-0 fw-bold text-end" colspan="4">Cash</td>
+                <td class="border-0 text-end">${{ cash }}</td>
+            </tr>
+            <tr>
+                <td class="border-0 fw-bold text-end" colspan="4">TOTAL</td>
+                <td class="border-0 w-bold text-end">${{ total }}</td>
+            </tr>
+        </tfoot>
     </table>
 {% endblock %}
