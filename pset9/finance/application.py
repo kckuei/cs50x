@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -50,7 +51,13 @@ def index():
     # display a table with all current users stocks, number of shares of each, current price of each stock, and total value of each holding
     # display the user's current cash balance
 
-    return apology("TODO")
+
+    # [LEFT OFF HERE]
+    # Maybe should re-implement table as TRANSACTIONS
+    # Add one other table with current portfolio
+
+
+    return render_template("index.html")
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -62,7 +69,49 @@ def buy():
     # When POST, purchase stock so long as user can afford it
     # create one or more databases here for index later
 
-    return apology("TODO")
+    # Uset route reached by POST
+    if request.method == "POST":
+
+        # Get stock info
+        symbol = request.form.get("symbol")
+        shares = float(request.form.get("shares"))
+        quote = lookup(symbol)
+
+        # If invalid symbol or empty list returned
+        if not quote:
+            return apology("invalid stock symbol", 403)
+
+        # Positive shares, at least 1
+        if shares < 1:
+            return apology("number of shares must be greater than 0", 403)
+
+        # Check for sufficient funds
+        rows = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        funds = rows[0]["cash"]
+        price = quote["price"]*shares
+        if funds < price:
+            return apology("insufficient funds", 403)
+
+        # Get the transaction time
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Add new table for keeping track of purchases
+        # CREATE TABLE purchases (transac_time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER, price NUMERIC);
+        # CREATE UNIQUE INDEX transac_time ON purchases (transac_time)
+
+        # Update purchase table
+        db.execute("INSERT INTO purchases (transac_time, users_id, symbol, shares, price) VALUES (?, ?, ?, ?, ?)",
+                    now, session["user_id"], symbol, shares, price)
+
+        # Update cash
+        db.execute("UPDATE users SET cash = ?  WHERE id = ?", funds - price, session["user_id"])
+
+        # Render an apology without completing a purchase
+        return render_template("index.html")
+
+    # Use route reached by GET
+    else:
+        return render_template("buy.html")
 
 
 @app.route("/history")
