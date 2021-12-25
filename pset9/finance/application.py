@@ -128,10 +128,16 @@ def logout():
 def quote():
     """Get stock quote."""
 
-    # if GET, display form to request a stock quote
-    # if POST (submission), lookup stock with lookup function
+    if request.method == "POST":
 
-    return apology("TODO")
+        # Get the stock price
+        quote = lookup(request.form.get("symbol"))
+
+        return render_template("quoted.html", name=quote["name"], symbol=quote["symbol"], price=usd(quote["price"]))
+
+    # GET request
+    else:
+        return render_template("quote.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -140,21 +146,37 @@ def register():
 
     if request.method == "POST":
 
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
         # check password matches confirmation
-        if request.form.get("password") != request.form.get("confirmation"):
+        if password != confirmation:
             return apology("paswords must match", 403)
 
         # check password length
-        if len(request.form.get("password")) < 8:
+        if len(password) < 8:
             return apology("password must be 8 characters or more in length", 403)
 
         # check username length
-        if len(request.form.get("username")) < 1:
+        if len(username) < 1:
             return apology("username must be 1 character or more in length", 403)
 
+        # check if username already exists
+        rows = db.execute("SELECT * FROM users WHERE username = ?", username)
+        if rows:
+            return apology("username already exists", 403)
+
+        # hash the password
+        hashed_password = generate_password_hash(password)
+
         # insert data into users table
+        db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", username, hashed_password)
 
+        # Return to login page
+        return  render_template("login.html")
 
+    # Otherwise return the registration page
     else:
         return render_template("register.html")
 
