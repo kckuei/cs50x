@@ -55,6 +55,7 @@ def index():
     # [LEFT OFF HERE]
     # Maybe should re-implement table as TRANSACTIONS
     # Add one other table with current portfolio
+    #
 
 
     return render_template("index.html")
@@ -72,25 +73,42 @@ def buy():
     # Uset route reached by POST
     if request.method == "POST":
 
-        # Get stock info
+        # Get the symbol and number of shares
         symbol = request.form.get("symbol")
-        shares = float(request.form.get("shares"))
+        shares = request.form.get("shares")
+
+        # Check for numeric shares
+        if not shares.isnumeric():
+            return apology("non-numeric input as as shares", 400)
+        else:
+            shares = float(shares)
+
+        # Get the stock info
         quote = lookup(symbol)
 
-        # If invalid symbol or empty list returned
-        if not quote:
-            return apology("invalid stock symbol", 403)
+        # Check for blank ticker
+        if symbol == "":
+            return apology("ticker symbol cannot be blank", 400)
+
+        # If invalid symbol
+        if quote is None:
+            return apology("invalid stock symbol", 400)
 
         # Positive shares, at least 1
         if shares < 1:
-            return apology("number of shares must be greater than 0", 403)
+            return apology("number of shares must be greater than 0", 400)
+
+        # If fractional share, must be whole
+        if shares % 1 != 0:
+            return apology("number of shares msut be non-fractional", 400)
+
 
         # Check for sufficient funds
         rows = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         funds = rows[0]["cash"]
         price = quote["price"]*shares
         if funds < price:
-            return apology("insufficient funds", 403)
+            return apology("insufficient funds", 400)
 
         # Get the transaction time
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -182,6 +200,12 @@ def quote():
         # Get the stock price
         quote = lookup(request.form.get("symbol"))
 
+        # If invalid symbol
+        if quote is None:
+            return apology("invalid stock symbol", 400)
+            #return render_template("quote.html")
+
+
         return render_template("quoted.html", name=quote["name"], symbol=quote["symbol"], price=usd(quote["price"]))
 
     # GET request
@@ -201,20 +225,20 @@ def register():
 
         # check password matches confirmation
         if password != confirmation:
-            return apology("paswords must match", 403)
+            return apology("paswords must match", 400)
 
         # check password length
         if len(password) < 8:
-            return apology("password must be 8 characters or more in length", 403)
+            return apology("password must be 8 characters or more in length", 400)
 
         # check username length
         if len(username) < 1:
-            return apology("username must be 1 character or more in length", 403)
+            return apology("username must be 1 character or more in length", 400)
 
         # check if username already exists
         rows = db.execute("SELECT * FROM users WHERE username = ?", username)
         if rows:
-            return apology("username already exists", 403)
+            return apology("username already exists", 400)
 
         # hash the password
         hashed_password = generate_password_hash(password)
