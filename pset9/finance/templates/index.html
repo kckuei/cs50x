@@ -21,8 +21,8 @@
                     <td class="text-start">{{ holding.symbol }}</td>
                     <td class="text-start">{{ holding.name }}</td>
                     <td class="text-end">{{ holding.shares }}</td>
-                    <td class="text-end">${{ holding.price }}</td>
-                    <td class="text-end">${{ holding.total }}</td>
+                    <td class="text-end">{{ holding.price }}</td>
+                    <td class="text-end">{{ holding.total }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -30,11 +30,11 @@
         <tfoot>
             <tr>
                 <td class="border-0 fw-bold text-end" colspan="4">Cash</td>
-                <td class="border-0 text-end">${{ cash }}</td>
+                <td class="border-0 text-end">{{ cash }}</td>
             </tr>
             <tr>
                 <td class="border-0 fw-bold text-end" colspan="4">TOTAL</td>
-                <td class="border-0 w-bold text-end">${{ total }}</td>
+                <td class="border-0 w-bold text-end">{{ total }}</td>
             </tr>
         </tfoot>
     </table>

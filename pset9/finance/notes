@@ -1,0 +1,12 @@
+# Database creation
+CREATE TABLE users (id INTEGER, username TEXT NOT NULL, hash TEXT NOT NULL, cash NUMERIC NOT NULL DEFAULT 10000.00, PRIMARY KEY(id));
+CREATE UNIQUE INDEX username ON users (username);
+CREATE TABLE transactions (time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, type TEXT NOT NULL, shares INTEGER, price NUMERIC);
+CREATE UNIQUE INDEX time ON transactions (time);
+CREATE TABLE portfolios (users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER);
+CREATE UNIQUE INDEX symbol ON portfolios (symbol);
+
+# API
+# API_KEY should not be stored on server
+export API_KEY=pk_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+envprint API_KEY

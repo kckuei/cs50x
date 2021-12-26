@@ -43,50 +43,60 @@ if not os.environ.get("API_KEY"):
     raise RuntimeError("API_KEY not set")
 
 
+def get_holdings():
+    """Get user stock holdings"""
+
+    rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? ORDER BY symbol ASC", session["user_id"])
+    holdings = []
+    stock_value = 0
+    if rows:
+        for row in rows:
+            # Look up stock pricing
+            result = lookup(row['symbol'])
+
+            # Accumulate total stock value
+            stock_value += row["shares"]*result["price"]
+
+            # Formatting for display
+            result["shares"] = row["shares"]
+            result["total"] = usd(row["shares"]*result["price"])
+            result["price"] = usd(result["price"])
+
+            holdings.append(result)
+
+    return (holdings, stock_value)
+
+
+def get_cash():
+    """Get user cash"""
+
+    rows = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+    cash = rows[0]["cash"]
+
+    return cash
+
+
 @app.route("/")
 @login_required
 def index():
     """Show portfolio of stocks"""
 
-    # display a table with all current users stocks, number of shares of each, current price of each stock, and total value of each holding
-    # display the user's current cash balance and total
-
-    # Look up the session users_id
-    # Look up their portfolio for number of shares of each holding
-    # Look up the current stock prices
-    #   lookup(symbol)
-    # Compute the total value
-    # Pass into a table
-
     # Get user cash
-    rows = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
-    cash = rows[0]["cash"]
+    cash = get_cash()
 
-    # Get the holdings
-    rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? ORDER BY symbol ASC", session["user_id"])
-    holdings = []
-    if rows:
-        for row in rows:
-            result = lookup(row['symbol'])
-            result["shares"] = row["shares"]
-            result["total"] = result["shares"]*result["price"]
-            holdings.append(result)
+    # Get user stock holdings
+    (holdings, stock_value) = get_holdings()
 
-    # Get total value
-    stock_value = sum([x["total"] for x in holdings])
+    # Get stock value and total
     total = cash + stock_value
 
-    return render_template("index.html", holdings=holdings, cash=cash, total=total)
+    return render_template("index.html", holdings=holdings, cash=usd(cash), total=usd(total))
 
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
     """Buy shares of stock"""
-
-    # When  GET, should display form to buy stock
-    # When POST, purchase stock so long as user can afford it
-    # create one or more databases here for index later
 
     # Uset route reached by POST
     if request.method == "POST":
@@ -131,24 +141,17 @@ def buy():
         # Get the transaction time
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Add transactions table
-        # CREATE TABLE transactions (time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, type TEXT NOT NULL, shares INTEGER, price NUMERIC);
-        # CREATE UNIQUE INDEX time ON transactions (time);
-
         # Add transaction to transactions table
         db.execute("INSERT INTO transactions (time, users_id, symbol, type, shares, price) VALUES (?, ?, ?, ?, ?, ?)",
                     now, session["user_id"], symbol, "BUY", shares, price)
 
 
         # Update portfolios table
-        # CREATE TABLE portfolios (users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER);
-        # CREATE UNIQUE INDEX symbol ON portfolios (symbol);
-
         # Check for existing entry on symbol
-        rows = db.execute("SELECT * FROM portfolios WHERE symbol = ?", symbol)
+        rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? AND symbol LIKE ?", session["user_id"], symbol)
         # If present, update shares
         if rows:
-            db.execute("UPDATE portfolios SET shares = ?", rows[0]["shares"] + shares)
+            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?", rows[0]["shares"] + shares, session["user_id"], symbol)
         # Otherwise create new entry
         else:
             db.execute("INSERT INTO portfolios (users_id, symbol, shares) VALUES (?, ?, ?)", session["user_id"], symbol, shares)
@@ -294,10 +297,62 @@ def register():
 def sell():
     """Sell shares of stock"""
 
-    # If GET, display form to sell a stock
-    # If POST, sell specified number of shares of stock, and update the user's cash
+    # Get session user_id
+    # Get user portfolio
+    # Check sell ticker against portfolio
+    # Check if exists in portfolio
+    # Check if have enough stocks to sell
 
-    return apology("TODO")
+    # Get user stock holdings
+    (holdings, stock_value) = get_holdings()
+
+    if request.method == "POST":
+
+        symbol = request.form.get("symbol")
+        shares = request.form.get("shares")
+
+        # Check for symbol selected
+        if symbol == "":
+            return apology("No stock selected", 400)
+
+        # Check has holdings of that stock
+        if symbol not in [x["symbol"] for x in holdings]:
+            return apology("Must own shares of stock to sell", 400)
+
+        # Check for numeric shares
+        if not shares.isnumeric():
+            return apology("non-numeric input as as shares", 400)
+        else:
+            shares = float(shares)
+
+        # Check for positive integer
+        if float(shares) % 1 != 0 and shares > 0:
+            return apology("Shares must be non-integer", 400)
+
+        # Check for sufficient shares
+        for holding in holdings:
+            if holding["symbol"] == symbol:
+                if holding["shares"] >= shares:
+                    sufficient_shares = True
+                    break
+        if not sufficient_shares:
+            return apology("Insufficient shares", 400)
+
+        # Update transactions
+        # Check for existing entry on symbol
+        rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? AND symbol LIKE ?", session["user_id"], symbol)
+        print(rows)
+        # If present, update shares
+        if rows:
+            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?", rows[0]["shares"] - shares, session["user_id"], symbol)
+        # Remove rows with zero shares
+        db.execute("DELETE FROM portfolios WHERE shares = 0")
+
+        return redirect("/")
+
+    # GET route to display form to sell stock
+    else:
+        return render_template("sell.html", holdings=holdings)
 
 
 def errorhandler(e):
