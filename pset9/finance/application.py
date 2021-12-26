@@ -130,12 +130,12 @@ def buy():
         if shares % 1 != 0:
             return apology("number of shares msut be non-fractional", 400)
 
-
         # Check for sufficient funds
         rows = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
         funds = rows[0]["cash"]
-        price = quote["price"]*shares
-        if funds < price:
+        price = quote["price"]
+        total = quote["price"]*shares
+        if funds < total:
             return apology("insufficient funds", 400)
 
         # Get the transaction time
@@ -143,24 +143,26 @@ def buy():
 
         # Add transaction to transactions table
         db.execute("INSERT INTO transactions (time, users_id, symbol, type, shares, price) VALUES (?, ?, ?, ?, ?, ?)",
-                    now, session["user_id"], symbol, "BUY", shares, price)
-
+                   now, session["user_id"], symbol.upper(), "BUY", shares, usd(price))
 
         # Update portfolios table
         # Check for existing entry on symbol
         rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? AND symbol LIKE ?", session["user_id"], symbol)
         # If present, update shares
         if rows:
-            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?", rows[0]["shares"] + shares, session["user_id"], symbol)
+            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?",
+                       rows[0]["shares"] + shares, session["user_id"], symbol)
         # Otherwise create new entry
         else:
+            print(session["user_id"])
+            print(symbol)
+            print(shares)
             db.execute("INSERT INTO portfolios (users_id, symbol, shares) VALUES (?, ?, ?)", session["user_id"], symbol, shares)
         # Remove rows with zero shares
         db.execute("DELETE FROM portfolios WHERE shares = 0")
 
-
         # Update cash
-        db.execute("UPDATE users SET cash = ?  WHERE id = ?", funds - price, session["user_id"])
+        db.execute("UPDATE users SET cash = ?  WHERE id = ?", funds - total, session["user_id"])
 
         # Redirect to index route
         return redirect("/")
@@ -175,10 +177,9 @@ def buy():
 def history():
     """Show history of transactions"""
 
-    # display a table with a history of all transaction's,
-    # listing row by row every buy and every sell event
+    transactions = db.execute("SELECT * FROM transactions WHERE users_id = ?", session["user_id"])
 
-    return apology("TODO")
+    return render_template("history.html", transactions=transactions)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -241,8 +242,7 @@ def quote():
         # If invalid symbol
         if quote is None:
             return apology("invalid stock symbol", 400)
-            #return render_template("quote.html")
-
+            # return render_template("quote.html")
 
         return render_template("quoted.html", name=quote["name"], symbol=quote["symbol"], price=usd(quote["price"]))
 
@@ -269,6 +269,18 @@ def register():
         if len(password) < 8:
             return apology("password must be 8 characters or more in length", 400)
 
+        # check for password numbers
+        if password.isnumeric():
+            return apology("password must contain at least one letter", 400)
+
+        # check for password letters
+        if password.isalpha():
+            return apology("password must contain at least one number", 400)
+
+        # check for special characters
+        if password.isalnum():
+            return apology("password must contain at least one special character", 400)
+
         # check username length
         if len(username) < 1:
             return apology("username must be 1 character or more in length", 400)
@@ -285,7 +297,7 @@ def register():
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", username, hashed_password)
 
         # Return to login page
-        return  render_template("login.html")
+        return render_template("login.html")
 
     # Otherwise return the registration page
     else:
@@ -330,6 +342,7 @@ def sell():
             return apology("Shares must be non-integer", 400)
 
         # Check for sufficient shares
+        sufficient_shares = False
         for holding in holdings:
             if holding["symbol"] == symbol:
                 if holding["shares"] >= shares:
@@ -338,15 +351,33 @@ def sell():
         if not sufficient_shares:
             return apology("Insufficient shares", 400)
 
-        # Update transactions
+        # Get the stock info
+        quote = lookup(symbol)
+
+        rows = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])
+        funds = rows[0]["cash"]
+        price = quote["price"]
+        total = quote["price"]*shares
+
+        # Get the transaction time
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # Add transaction to transactions table
+        db.execute("INSERT INTO transactions (time, users_id, symbol, type, shares, price) VALUES (?, ?, ?, ?, ?, ?)",
+                   now, session["user_id"], symbol.upper(), "SELL", shares, usd(price))
+
+        # Update portfolio
         # Check for existing entry on symbol
         rows = db.execute("SELECT * FROM portfolios WHERE users_id = ? AND symbol LIKE ?", session["user_id"], symbol)
-        print(rows)
         # If present, update shares
         if rows:
-            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?", rows[0]["shares"] - shares, session["user_id"], symbol)
+            db.execute("UPDATE portfolios SET shares = ? WHERE users_id = ? AND symbol LIKE ?",
+                       rows[0]["shares"] - shares, session["user_id"], symbol)
         # Remove rows with zero shares
         db.execute("DELETE FROM portfolios WHERE shares = 0")
+
+        # Update user cash
+        db.execute("UPDATE users SET cash = ?  WHERE id = ?", funds + total, session["user_id"])
 
         return redirect("/")
 

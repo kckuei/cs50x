@@ -4,9 +4,18 @@ CREATE UNIQUE INDEX username ON users (username);
 CREATE TABLE transactions (time TEXT NOT NULL, users_id INTEGER, symbol TEXT NOT NULL, type TEXT NOT NULL, shares INTEGER, price NUMERIC);
 CREATE UNIQUE INDEX time ON transactions (time);
 CREATE TABLE portfolios (users_id INTEGER, symbol TEXT NOT NULL, shares INTEGER);
-CREATE UNIQUE INDEX symbol ON portfolios (symbol);
+
+
+
+# To reset database values / clear rows
+DELETE FROM portfolios;
+DELETE FROM transactions;
+DELETE FROM users;
+
 
 # API
 # API_KEY should not be stored on server
 export API_KEY=pk_XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 envprint API_KEY
+
+# Database manipulation functions can be further modularized
