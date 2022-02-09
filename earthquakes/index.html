@@ -1,0 +1,31 @@
+<html>
+
+<head>
+	<!-- Load plotly.js into the DOM -->
+	<script src='https://cdn.plot.ly/plotly-2.8.3.min.js'></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+</head>
+
+<body>
+
+<div>
+    Min. Mag: <input type="text" id="minMagBox">
+    Max. Mag: <input type="text" id="maxMagBox">
+</div>
+<div>
+    Min. Date: <input type="datetime" id="minDateBox">
+    Max. Date: <input type="datetime" id="maxDateBox">
+</div>
+<div>
+    Limit: <input type="text" id="limitBox">
+</div>
+
+	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV -->
+</body>
+
+
+<script src="earthquake.js"></script>
+
+
+
+</html>
