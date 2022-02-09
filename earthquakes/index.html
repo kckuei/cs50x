@@ -8,19 +8,30 @@
 
 <body>
 
-<div>
-    Min. Mag: <input type="text" id="minMagBox">
-    Max. Mag: <input type="text" id="maxMagBox">
-</div>
-<div>
-    Min. Date: <input type="datetime" id="minDateBox">
-    Max. Date: <input type="datetime" id="maxDateBox">
-</div>
-<div>
-    Limit: <input type="text" id="limitBox">
-</div>
+    <div>
+        Min. Mag: <input type=number id=minMagBox value=0>
+        Max. Mag: <input type=number id=maxMagBox value=10>
+    </div>
+    <div>
+        Min. Date: <input type=datetime id=minDateBox value=2014-01-01>
+        Max. Date: <input type=datetime id=maxDateBox value=2014-01-02>
+    </div>
+    <div>
+        Limit: <input type=number id=limitBox value=2000>
+    </div>
 
-	<div id='myDiv'><!-- Plotly chart will be drawn inside this DIV -->
+    <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV -->
+
+    <div>
+        Data from <a href="https://earthquake.usgs.gov/fdsnws/event/1/">USGS</a> and <a href="https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php">NRCAN</a>.
+    
+    </div>
+
+    <table id=statisticsTable>
+    </table>
+    <table id=entriesTable>
+    </table>
+
 </body>
 
 
