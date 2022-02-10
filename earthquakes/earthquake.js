@@ -47,7 +47,7 @@ let data;
 
 // plot constants
 const MARKERSCALEFAC = 10;
-const MAGCOLORS = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026']
+const MAGCOLORS = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026'];
 
 
 function fetchApiDataAndRender() {
@@ -103,6 +103,18 @@ function fetchApiDataAndRender() {
                       </tr>`;
                   }
 
+                  // compute magnitude counts
+                  counts = countMagnitudes(plotPayload)
+                  innterHtmlStringFacts += `<tr>
+                  <td>Totals</td>
+                  <td>${counts["<2"]}</td>
+                  <td>${counts["2"]}</td>
+                  <td>${counts["3"]}</td>
+                  <td>${counts["4"]}</td>
+                  <td>${counts["5"]}</td>
+                  <td>${counts[">=6"]}</td>
+                  </tr>`
+
                   // create summary table of statistics
                   document.getElementById('statisticsTable').innerHTML = innterHtmlStringFacts;
 
@@ -116,6 +128,33 @@ function fetchApiDataAndRender() {
     );
 }
 
+
+function countMagnitudes(payload) {
+    let magCount = {
+        "<2" : 0, 
+        "2" : 0, 
+        "3": 0, 
+        "4": 0, 
+        "5": 0, 
+        ">=6": 0
+    };
+    for (let i = 0; i < payload.time.length; i++) {
+        if (payload.mag[i] < 2) {
+            magCount["<2"] += 1
+        } else if (payload.mag[i] < 3) {
+            magCount["2"] += 1
+        } else if (payload.mag[i] < 4) {
+            magCount["3"] += 1
+        } else if (payload.mag[i] < 5) {
+            magCount["4"] += 1
+        } else if (payload.mag[i] < 6) {
+            magCount["5"] += 1
+        } else {
+            magCount[">=6"] += 1
+        }
+    }
+    return magCount
+}
 
 
 function assignColor(magnitude) {

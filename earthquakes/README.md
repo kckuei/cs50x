@@ -23,6 +23,7 @@ How it works:
 
 Current to do:
 
+* add minimum/maximum/median/magnitudes
 * API queries and callback logic
 * CSS styling
 * Download CSV/save image
