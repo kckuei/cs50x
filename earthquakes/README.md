@@ -23,7 +23,11 @@ How it works:
 
 Current to do:
 
+* update bubble scaling to use log scale
+* update to consider current time -> back 1 month
+* add location filter (checkbox approach), and draw box on map
 * add minimum/maximum/median/magnitudes
+
 * API queries and callback logic
 * CSS styling
 * Download CSV/save image

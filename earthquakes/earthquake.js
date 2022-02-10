@@ -136,22 +136,32 @@ function countMagnitudes(payload) {
         "3": 0, 
         "4": 0, 
         "5": 0, 
-        ">=6": 0
+        ">=6": 0,
+        min: 999, 
+        max: 0,
     };
     for (let i = 0; i < payload.time.length; i++) {
         if (payload.mag[i] < 2) {
-            magCount["<2"] += 1
+            magCount["<2"] += 1;
         } else if (payload.mag[i] < 3) {
-            magCount["2"] += 1
+            magCount["2"] += 1;
         } else if (payload.mag[i] < 4) {
-            magCount["3"] += 1
+            magCount["3"] += 1;
         } else if (payload.mag[i] < 5) {
-            magCount["4"] += 1
+            magCount["4"] += 1;
         } else if (payload.mag[i] < 6) {
-            magCount["5"] += 1
+            magCount["5"] += 1;
         } else {
-            magCount[">=6"] += 1
+            magCount[">=6"] += 1;
         }
+
+        if (payload.mag[i] < magCount.min) {
+            magCount.min = payload.mag[i];
+        } 
+        if (payload.mag[i] > magCount.max) {
+            magCount.max = payload.mag[i];
+        } 
+
     }
     return magCount
 }
@@ -219,13 +229,13 @@ function renderMap(plotPayload) {
             size: 16
         },
         geo: {
-            scope: 'north america',
+            // scope: 'north america', // https://plotly.com/python/map-configuration/#named-map-scopes-and-country-subunits
             resolution: 50,
             lonaxis: {
                 'range': [-130, -55]
             },
             lataxis: {
-                'range': [40, 70]
+                'range': [20, 60]
             },
             showrivers: true,
             rivercolor: '#fff',
@@ -246,65 +256,72 @@ function renderMap(plotPayload) {
 
 function renderTimeSeriesLine(plotPayload) {
 
-    d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
+    // d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
 
-        function unpack(rows, key) {
-        return rows.map(function(row) { return row[key]; });
-      }
-      
+    //     function unpack(rows, key) {
+    //     return rows.map(function(row) { return row[key]; });
+    //   }
+    // })
       
       var trace1 = {
         type: "scatter",
-        mode: "lines",
-        name: 'AAPL High',
-        x: unpack(rows, 'Date'),
-        y: unpack(rows, 'AAPL.High'),
-        line: {color: '#17BECF'}
-      }
-      
-      var trace2 = {
-        type: "scatter",
         mode: "markers",
-        name: 'AAPL Low',
-        x: unpack(rows, 'Date'),
-        y: unpack(rows, 'AAPL.Low'),
-        line: {color: '#7F7F7F'}
+        name: 'Magnitude',
+        x: plotPayload.time,
+        y: plotPayload.mag,
+        // marker: {color: '#17BECF'}
+        marker: {
+            size: plotPayload.size.map(x => x/2.5),
+            color: plotPayload.color,
+            line: {
+                width: 1,
+                color: '#000000'
+            }
+        },
       }
       
-      var data = [trace1,trace2];
+      
+      var data = [trace1];
       
       var layout = {
         title: '',
+        margin: {
+            autoexpand : true,
+            b: 0,
+            t: 0, 
+            l: 0, 
+            r: 0,
+        },
         xaxis: {
           autorange: true,
-          range: ['2015-02-17', '2017-02-16'],
+          range: [querySettings.minDate, querySettings.maxDate],
           rangeselector: {buttons: [
               {
-                count: 1,
-                label: '1m',
-                step: 'month',
+                count: 5,
+                label: '5d',
+                step: 'day',
                 stepmode: 'backward'
               },
               {
-                count: 6,
-                label: '6m',
-                step: 'month',
+                count: 30,
+                label: '30d',
+                step: 'day',
                 stepmode: 'backward'
               },
               {step: 'all'}
             ]},
-          rangeslider: {range: ['2015-02-17', '2017-02-16']},
+          rangeslider: {range: [querySettings.minDate, querySettings.maxDate]},
           type: 'date'
         },
         yaxis: {
           autorange: true,
-          range: [86.8700008333, 138.870004167],
+          range: [0, 10],
           type: 'linear'
         }
       };
       
       Plotly.newPlot('magTimeSeriesLineChart', data, layout);
-      })
+
       
     
 }

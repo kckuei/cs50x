@@ -13,15 +13,15 @@
 <body>
 
     <header>
-        <h1 id="title">U.S. Earthquakes Explorer</h1>
+        <h1 id="title">Earthquake Event Explorer</h1>
         <div style="font-size:16;">Find an earthquake near you!</div>
     </header>
     <br>
 
     <div id="filterBox">
-        <h3>Filter settings</h3>
+        <h3>Filter Settings</h3>
         <div>
-            Min. Mag: <input type=number id=minMagBox value=0>
+            Min. Mag: <input type=number id=minMagBox value=3>
             Max. Mag: <input type=number id=maxMagBox value=10>
         </div>
         <div>
@@ -33,23 +33,23 @@
         </div>
     </div>
 
-    <h3>Earthquakes by location</h3>
+    <h3>Earthquakes by Location</h3>
     <div id='magMapChart'></div><!-- Plotly chart will be drawn inside this DIV -->
     
-    <h3>Earthquakes by time</h3>
+    <h3>Earthquakes in Time</h3>
     <div id='magTimeSeriesLineChart'></div><!-- Plotly chart will be drawn inside this DIV -->
-    
+    <br>
 
     <div style="font-size:12;">
         <p><a href="https://earthquake.usgs.gov/fdsnws/event/1/" target="_blank">Data obtained from United States Geological Survey (USGS)</a>.</p>
     </div>
     <div>
-        <h3>Earthquake quick facts summary</h3>
+        <h3>Earthquake Quick Facts Summary</h3>
         <table id=statisticsTable>
         </table>
     </div>
     <div>
-        <h3>Earthquake events summary</h3>
+        <h3>Earthquake Events Summary</h3>
         <table id=entriesTable>
         </table>
     </div>
