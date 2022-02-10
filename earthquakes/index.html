@@ -3,6 +3,8 @@
 <head>
     <!-- Load CSS styling -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Use google font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
 	<!-- Load plotly.js into the DOM -->
 	<script src='https://cdn.plot.ly/plotly-2.8.3.min.js'></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
@@ -10,30 +12,48 @@
 
 <body>
 
-    <div>
-        Min. Mag: <input type=number id=minMagBox value=0>
-        Max. Mag: <input type=number id=maxMagBox value=10>
-    </div>
-    <div>
-        Min. Date: <input type=datetime id=minDateBox value=2014-01-01>
-        Max. Date: <input type=datetime id=maxDateBox value=2014-01-02>
-    </div>
-    <div>
-        Limit: <input type=number id=limitBox value=2000>
+    <header>
+        <h1 id="title">U.S. Earthquake Events Viewer</h1>
+        <div style="font-size:16;">Find an earthquake near you!</div>
+    </header>
+    <br>
+
+    <div id="filterBox">
+        <h3>Filter settings</h3>
+        <div>
+            Min. Mag: <input type=number id=minMagBox value=0>
+            Max. Mag: <input type=number id=maxMagBox value=10>
+        </div>
+        <div>
+            Min. Date: <input type=date id=minDateBox value=2014-01-01>
+            Max. Date: <input type=date id=maxDateBox value=2014-01-02>
+        </div>
+        <div>
+            Limit: <input type=number id=limitBox value=2000>
+        </div>
     </div>
 
-    <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV -->
+    <div id='magMapChart'></div><!-- Plotly chart will be drawn inside this DIV -->
+    
+    <div id='magTimeSeriesLineChart'></div><!-- Plotly chart will be drawn inside this DIV -->
+    
 
-    <div>
-        <p>Data from <a href="https://earthquake.usgs.gov/fdsnws/event/1/">USGS</a>.</p>
+    <div style="font-size:12;">
+        <p><a href="https://earthquake.usgs.gov/fdsnws/event/1/" target="_blank">Data obtained from United States Geological Survey (USGS)</a>.</p>
     </div>
     <div>
+        <h3>Earthquake quick facts summary</h3>
         <table id=statisticsTable>
         </table>
-
+    </div>
+    <div>
+        <h3>Earthquake events summary</h3>
         <table id=entriesTable>
         </table>
     </div>
+
+    <br>
+    <div style="font-size:12;">Created by me! :)</div>
 
 </body>
 

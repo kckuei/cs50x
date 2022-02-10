@@ -22,11 +22,17 @@ How it works:
 
 Current to do:
 
+* API queries and callback logic
 * CSS styling
-* Clean callback/update logic
+* Download CSV/save image
+* Plot the user location in the map
+* sorting Tables
+* collapsible fields
 * Javascript for DOM elements
 * Function for updating plot when field update or onblick
 * Update API call to consider inputs
+* Add async await syntatic sugar | https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await
+* Responsive design
 * Try hosting on a small service provider like Heroku, Digital Ocean, Github
 
 

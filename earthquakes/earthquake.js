@@ -1,66 +1,127 @@
+// initialize html element pointers
+let minMagElem = document.getElementById("minMagBox")
+let maxMagElem = document.getElementById("maxMagBox")
+let minDateElem = document.getElementById("minDateBox")
+let maxDateElem = document.getElementById("maxDateBox") 
+let limitElem = document.getElementById("limitBox") 
+
+// initialize querySettings
 const querySettings = {
-    minMag : Math.max(0,document.getElementById("minMagBox").value), 
-    maxMag : Math.min(10,document.getElementById("maxMagBox").value)
-
+    minMag : Math.max(0, minMagElem.value), 
+    maxMag : Math.min(10, maxMagElem.value),
+    minDate : minDateElem.value, 
+    maxDate : maxDateElem.value,
+    limit : Math.min(20000, limitElem.value),
 }
-// const minMag = Math.max(0,document.getElementById("minMagBox"))
-// const maxMag = Math.min(10,document.getElementById("maxMagBox"))
-// obj.features[0].properties
+
+// add event callbacks
+minMagElem.addEventListener('change', (event) => {
+    querySettings.minMag = Math.max(0, minMagElem.value);
+    fetchApiDataAndRender()
+});
+
+maxMagElem.addEventListener('change', (event) => {
+    querySettings.maxMag = Math.min(10, maxMagElem.value);
+    fetchApiDataAndRender()
+});
+
+minDateElem.addEventListener('change', (event) => {
+    querySettings.minDate = minDateElem.value;
+    fetchApiDataAndRender()
+});
+
+maxDateElem.addEventListener('change', (event) => {
+    querySettings.maxDate = maxDateElem.value;
+    fetchApiDataAndRender()
+});
+
+limitElem.addEventListener('change', (event) => {
+    querySettings.limit = limitElem.value;
+    fetchApiDataAndRender()
+});
 
 
-// storing api call results in this object to iterate /referenc elater
-let obj;
 
-// maybe can encapsulate these into a delivery object later
-let text = [];
-let mag = [];
-let lon = [];
-let lat = [];
-let size = [];
-let color = [];
 
+
+
+// storing api call results in this object to iterate /reference later
+let data;
+
+// plot constants
 const markerScaleFac = 10;
 const magColors = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026']
 
+
 function fetchApiDataAndRender() {
-    let apiQuery = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-02&minmagnitude=${querySettings.minMag}`
-    fetch(apiQuery)
+
+    // initialize plot payload object
+    let plotPayload = {
+        text: [], 
+        mag: [], 
+        lon: [],
+        lat: [],
+        size: [],
+        color: [],
+        urls: [],
+    }
+
+    // construct API query
+    let baseURL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson"
+    let dateQuery = `&starttime=${querySettings.minDate}&endtime=${querySettings.maxDate}`
+    let magQuery = `&minmagnitude=${querySettings.minMag}&maxmagnitude=${querySettings.maxMag}`
+    let limitQuery = `&`
+    let fullApiQuery = baseURL + dateQuery + magQuery
+
+    // call the USGS API
+    fetch(fullApiQuery)
     .then(response => response.json())
-    .then(data => obj = data)
-    .then(() => console.log(obj))
-    .then( () => {
+    .then(obj => data = obj)
+    // .then(() => console.log(data))
+    .then(() => {
 
                   // populate the fields we need for plotting
-                  let innerHtmlString = "<tr><th>No.</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th></tr>"
-                  for (let i = 0; i < obj.features.length; i++) {
-                      text.push(obj.features[i].properties.place);
-                      mag.push(obj.features[i].properties.mag);
-                      lon.push(obj.features[i].geometry.coordinates[0]);
-                      lat.push(obj.features[i].geometry.coordinates[1]);
-                      size.push(obj.features[i].properties.mag * markerScaleFac);
-                      color.push(assignColor(obj.features[i].properties.mag))
+                  console.log(plotPayload)
+
+                  let innterHtmlStringFacts = "<tr><th>Magnitude</th><th>< 2</th><th>2</th><th>3</th><th>4</th><th>5</th><th>≥ 6</th></tr>"
+                  let innerHtmlStringEqkEvents = "<tr><th>No.</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th><th>URL</th></tr>"
+                  for (let i = 0; i < data.features.length; i++) {
+                      plotPayload.text.push(data.features[i].properties.place);
+                      plotPayload.mag.push(data.features[i].properties.mag);
+                      plotPayload.lon.push(data.features[i].geometry.coordinates[0]);
+                      plotPayload.lat.push(data.features[i].geometry.coordinates[1]);
+                      plotPayload.urls.push(data.features[i].properties.url)
+                      plotPayload.size.push(data.features[i].properties.mag * markerScaleFac);
+                      plotPayload.color.push(assignColor(data.features[i].properties.mag))
                       
-                      innerHtmlString += `<tr>
+                      innerHtmlStringEqkEvents += `<tr>
                       <td>${i}</td>
-                      <td>${mag[i]}</td>
-                      <td>${lon[i]}</td>
-                      <td>${lat[i]}</td>
-                      <td>${text[i]}</td>
+                      <td>${Math.round(plotPayload.mag[i] * 100)/100}</td>
+                      <td>${Math.round(plotPayload.lon[i] * 100)/100}</td>
+                      <td>${Math.round(plotPayload.lat[i] * 100)/100}</td>
+                      <td class=tdPlace>${plotPayload.text[i]}</td>
+                      <td><a href=${plotPayload.urls[i]} target="_blank">Main</a></td>
                       </tr>`;
                   }
 
-                  // create a table for showing results
+                  // create summary table of statistics
+                  document.getElementById('statisticsTable').innerHTML = innterHtmlStringFacts;
 
-                  document.getElementById('entriesTable').innerHTML = innerHtmlString;
-
+                  // create summary table of events
+                  document.getElementById('entriesTable').innerHTML = innerHtmlStringEqkEvents;
   
-                  renderMap()
+                  // render charts
+                  renderMap(plotPayload)
+                  renderTimeSeriesLine(plotPayload)
                 }
     );
 }
 
 
+
 function assignColor(magnitude) {
+    // magnitude colormap for map
+
     if (magnitude < 2) {
         return magColors[0]
     } else if (magnitude < 3) {
@@ -76,17 +137,18 @@ function assignColor(magnitude) {
     }
 }
 
-function renderMap() {
+
+function renderMap(plotPayload) {
 
     var data = [{
         type: 'scattergeo',
         mode: 'markers+text',
-        text: text, 
-        lon: lon, 
-        lat: lat, 
+        text: plotPayload.text, 
+        lon: plotPayload.lon, 
+        lat: plotPayload.lat, 
         marker: {
-            size: size,
-            color: color,
+            size: plotPayload.size,
+            color: plotPayload.color,
             line: {
                 width: 1
             }
@@ -105,10 +167,14 @@ function renderMap() {
         height: 800,
         margin: {
             autoexpand : true,
+            b: 0,
+            t: 0, 
+            l: 0, 
+            r: 0,
         },
-        title: 'Earthquakes',
+        title: '',
         font: {
-            family: 'Droid Serif, serif',
+            family: 'Roboto, serif',
             size: 6
         },
         titlefont: {
@@ -135,9 +201,82 @@ function renderMap() {
         }
     };
     
-    Plotly.newPlot('myDiv', data, layout);
+    Plotly.newPlot('magMapChart', data, layout);
 
 }
+
+
+function renderTimeSeriesLine(plotPayload) {
+
+    d3.csv("https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv", function(err, rows){
+
+        function unpack(rows, key) {
+        return rows.map(function(row) { return row[key]; });
+      }
+      
+      
+      var trace1 = {
+        type: "scatter",
+        mode: "lines",
+        name: 'AAPL High',
+        x: unpack(rows, 'Date'),
+        y: unpack(rows, 'AAPL.High'),
+        line: {color: '#17BECF'}
+      }
+      
+      var trace2 = {
+        type: "scatter",
+        mode: "markers",
+        name: 'AAPL Low',
+        x: unpack(rows, 'Date'),
+        y: unpack(rows, 'AAPL.Low'),
+        line: {color: '#7F7F7F'}
+      }
+      
+      var data = [trace1,trace2];
+      
+      var layout = {
+        title: '',
+        xaxis: {
+          autorange: true,
+          range: ['2015-02-17', '2017-02-16'],
+          rangeselector: {buttons: [
+              {
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {step: 'all'}
+            ]},
+          rangeslider: {range: ['2015-02-17', '2017-02-16']},
+          type: 'date'
+        },
+        yaxis: {
+          autorange: true,
+          range: [86.8700008333, 138.870004167],
+          type: 'linear'
+        }
+      };
+      
+      Plotly.newPlot('magTimeSeriesLineChart', data, layout);
+      })
+      
+    
+}
+
+
+function renderTimeSeriesScatter() {
+
+}
+
+
 
 
 fetchApiDataAndRender()
