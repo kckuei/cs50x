@@ -1,13 +1,3 @@
-// be kinda cool to combine canadian API with US
-// https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php?display=1&endtime=2022-02-09T23%3A59%3A59&eventtype=L&latitude=63.13&limit=4001&longitude=-90.34&maxdepth=1000&maxlatitude=90&maxlongitude=180&maxmagnitude=10&maxradius=45.04504504504504&mindepth=-5&minlatitude=-90&minlongitude=-180&minmagnitude=-5&minradius=0&onlyfelt=0&starttime=2022-01-09T00%3A00%3A00
-// add a table of summary statistics and earthquake metatable as well
-// Magnitude <2 2 3 4 5 >=6 || w/ totals...
-
-// Need a function to update plot when field updated, or onclick
-
-// Need get javascript DOM elements
-
-
 const querySettings = {
     minMag : Math.max(0,document.getElementById("minMagBox").value), 
     maxMag : Math.min(10,document.getElementById("maxMagBox").value)
@@ -112,7 +102,10 @@ function renderMap() {
     var layout = {
         autosize: false, 
         width: 1000, 
-        height: 1000,
+        height: 800,
+        margin: {
+            autoexpand : true,
+        },
         title: 'Earthquakes',
         font: {
             family: 'Droid Serif, serif',

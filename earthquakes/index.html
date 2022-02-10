@@ -1,6 +1,8 @@
 <html>
 
 <head>
+    <!-- Load CSS styling -->
+    <link rel="stylesheet" href="styles.css">
 	<!-- Load plotly.js into the DOM -->
 	<script src='https://cdn.plot.ly/plotly-2.8.3.min.js'></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
@@ -23,14 +25,15 @@
     <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV -->
 
     <div>
-        Data from <a href="https://earthquake.usgs.gov/fdsnws/event/1/">USGS</a> and <a href="https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php">NRCAN</a>.
-    
+        <p>Data from <a href="https://earthquake.usgs.gov/fdsnws/event/1/">USGS</a>.</p>
     </div>
+    <div>
+        <table id=statisticsTable>
+        </table>
 
-    <table id=statisticsTable>
-    </table>
-    <table id=entriesTable>
-    </table>
+        <table id=entriesTable>
+        </table>
+    </div>
 
 </body>
 
