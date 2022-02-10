@@ -9,6 +9,7 @@ Inspiration/Context:
 * There are several public agencies/resources from which you can access earthquake data. E.g. USGS for US, and NRCAN for Canada. USGS has an API for accessing data. To my knowledge at time of writing, NRCAN doesn't it, but they have a form input, that you can scrape the return of to get the data you need (I've done this before with python selenium module).
 * I did a lot of googling to just scrape something together, and then refined it gradually, as I got the skeleton pieces in. 
 * I started with looking at USGS's API, and playing around with getting return values, then exploring the API object fields to see what I could plot/manipulate. It was pretty straightforward from there. 
+https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
 * The main fields I'm using are features.geometry or features.properties
 * In terms of plotting packages, there are several, JSChart, D3, Plotly. I used Plotly, because it was simple, and found some clean examples. 
 
@@ -26,7 +27,9 @@ Current to do:
 * CSS styling
 * Download CSV/save image
 * Plot the user location in the map
+* Update time to use Date.now()
 * sorting Tables
+* filter buttons for magnitude?
 * collapsible fields
 * Javascript for DOM elements
 * Function for updating plot when field update or onblick

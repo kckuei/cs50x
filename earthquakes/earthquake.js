@@ -42,22 +42,20 @@ limitElem.addEventListener('change', (event) => {
 
 
 
-
-
-
 // storing api call results in this object to iterate /reference later
 let data;
 
 // plot constants
-const markerScaleFac = 10;
-const magColors = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026']
+const MARKERSCALEFAC = 10;
+const MAGCOLORS = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026']
 
 
 function fetchApiDataAndRender() {
 
     // initialize plot payload object
     let plotPayload = {
-        text: [], 
+        place: [], 
+        time: [],
         mag: [], 
         lon: [],
         lat: [],
@@ -70,8 +68,8 @@ function fetchApiDataAndRender() {
     let baseURL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson"
     let dateQuery = `&starttime=${querySettings.minDate}&endtime=${querySettings.maxDate}`
     let magQuery = `&minmagnitude=${querySettings.minMag}&maxmagnitude=${querySettings.maxMag}`
-    let limitQuery = `&`
-    let fullApiQuery = baseURL + dateQuery + magQuery
+    let limitQuery = `&limit=${querySettings.limit}`
+    let fullApiQuery = baseURL + dateQuery + magQuery + limitQuery
 
     // call the USGS API
     fetch(fullApiQuery)
@@ -81,25 +79,26 @@ function fetchApiDataAndRender() {
     .then(() => {
 
                   // populate the fields we need for plotting
-                  console.log(plotPayload)
-
                   let innterHtmlStringFacts = "<tr><th>Magnitude</th><th>< 2</th><th>2</th><th>3</th><th>4</th><th>5</th><th>≥ 6</th></tr>"
-                  let innerHtmlStringEqkEvents = "<tr><th>No.</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th><th>URL</th></tr>"
+                  let innerHtmlStringEqkEvents = "<tr><th>No.</th><th>Date (YYYY-MM-DD)</th><th>Time (HH-MM-SS)</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th><th>URL</th></tr>"
                   for (let i = 0; i < data.features.length; i++) {
-                      plotPayload.text.push(data.features[i].properties.place);
+                      plotPayload.place.push(data.features[i].properties.place);
+                      plotPayload.time.push(new Date(data.features[i].properties.time));
                       plotPayload.mag.push(data.features[i].properties.mag);
                       plotPayload.lon.push(data.features[i].geometry.coordinates[0]);
                       plotPayload.lat.push(data.features[i].geometry.coordinates[1]);
                       plotPayload.urls.push(data.features[i].properties.url)
-                      plotPayload.size.push(data.features[i].properties.mag * markerScaleFac);
+                      plotPayload.size.push(data.features[i].properties.mag * MARKERSCALEFAC);
                       plotPayload.color.push(assignColor(data.features[i].properties.mag))
                       
                       innerHtmlStringEqkEvents += `<tr>
                       <td>${i}</td>
+                      <td>${plotPayload.time[i].getFullYear()}-${plotPayload.time[i].getMonth()+1}-${plotPayload.time[i].getDate()}</td>
+                      <td>${plotPayload.time[i].getHours()}-${plotPayload.time[i].getMinutes()+1}-${plotPayload.time[i].getSeconds()}</td>
                       <td>${Math.round(plotPayload.mag[i] * 100)/100}</td>
                       <td>${Math.round(plotPayload.lon[i] * 100)/100}</td>
                       <td>${Math.round(plotPayload.lat[i] * 100)/100}</td>
-                      <td class=tdPlace>${plotPayload.text[i]}</td>
+                      <td class=tdPlace>${plotPayload.place[i]}</td>
                       <td><a href=${plotPayload.urls[i]} target="_blank">Main</a></td>
                       </tr>`;
                   }
@@ -123,17 +122,17 @@ function assignColor(magnitude) {
     // magnitude colormap for map
 
     if (magnitude < 2) {
-        return magColors[0]
+        return MAGCOLORS[0]
     } else if (magnitude < 3) {
-        return magColors[1]
+        return MAGCOLORS[1]
     } else if (magnitude < 4) {
-        return magColors[2]
+        return MAGCOLORS[2]
     } else if (magnitude < 5) {
-        return magColors[3]
+        return MAGCOLORS[3]
     } else if (magnitude < 6) {
-        return magColors[4]
+        return MAGCOLORS[4]
     } else {
-        return magColors[5]
+        return MAGCOLORS[5]
     }
 }
 
