@@ -15,11 +15,8 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 >Creating an entire project may seem daunting. Here are some questions that you should think about as you start:
 
   > * What will your software do? What features will it have? How will it be executed?
-
   > * What new skills will you need to acquire? What topics will you need to research?
-
   > * If working with one or two classmates, who will do what?
-
   > * In the world of software, most everything takes longer to implement than you expect. And so it’s not uncommon to accomplish less in a fixed amount of time than you hope. What might you consider to be a good outcome for your project? A better outcome? The best outcome?
 
 
@@ -53,7 +50,7 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 
 * Figuring out the API was easy with USGS's documentation, and inspecting the objects in the developer console with Chrome. 
 
-* To figure out the plotting aspects, I relied on my good friend Google to see what options there were. There are a bazillion, including D3, Chart.JS, and Plotly. I used Plotly since it was straightforward and had a lot of examples, I could adapt.
+* To figure out the plotting aspects, I relied on my good friend Google to see what options there were. There are a bazillion, including D3, Chart.JS, and Plotly. I used Plotly since it was straightforward and had a lot of examples,= I could adapt.
 
 * As I built the basic functionality, there were various aesthetic changes, and functional aspects that I decided to layer on. 
 
@@ -67,7 +64,8 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 * sort tables
 * refine CSS styling
 * clean refactor code
-* add async await syntatic sugar <https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await>
+* current time window should be X weeks from current datetime
+* add async await syntactic sugar <https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await>
 
 
 ### How this App Can be Improved 
@@ -77,3 +75,4 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 * add other data sources / waveforms
 * add more nice visual effects, e.g. for inspiration <https://www.scsn.org/>
 * subplots for major geographic regions
+* animations of most recent earthquakes
