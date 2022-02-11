@@ -22,7 +22,7 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 
 ### The Application
 
-It's a simple web-based application built with vanilla HTML, CSS, and JavaScript that interfaces with the United States Geological Survey (USGS) API to retrieve GEOJSON data about earthquakes. 
+* It's a simple web-based application built with vanilla HTML, CSS, and JavaScript that interfaces with the United States Geological Survey (USGS) API to retrieve GEOJSON data about earthquakes. 
 * The application then plots and summarizes the results for a given query on the webpage. 
 * The user can dynamically interact with the data to explore earthquakes near them in space and time, and apply some simple filter criteria to the request.
 
