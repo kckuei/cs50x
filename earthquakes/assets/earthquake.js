@@ -309,7 +309,7 @@ function renderMap(plotPayload) {
     var layout = {
         autosize: false, 
         width: 1000, 
-        height: 800,
+        height: 600,
         margin: {
             autoexpand : true,
             b: 0,
