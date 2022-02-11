@@ -26,7 +26,7 @@ It's a simple web-based application built with vanilla HTML, CSS, and JavaScript
 * The application then plots and summarizes the results for a given query on the webpage. 
 * The user can dynamically interact with the data to explore earthquakes near them in space and time, and apply some simple filter criteria to the request.
 
-
+![Here's how it looks!](assets/images/screenshot.png)
 
 
 ### How it Works
