@@ -4,6 +4,9 @@ let maxMagElem = document.getElementById("maxMagBox")
 let minDateElem = document.getElementById("minDateBox")
 let maxDateElem = document.getElementById("maxDateBox") 
 let limitElem = document.getElementById("limitBox") 
+let show10Button = document.getElementById("show10Button") 
+let show100Button = document.getElementById("show100Button") 
+let showAllButton = document.getElementById("showAllButton") 
 
 // initialize querySettings
 const querySettings = {
@@ -40,14 +43,46 @@ limitElem.addEventListener('change', (event) => {
     fetchApiDataAndRender()
 });
 
+show10Button.addEventListener('click', (event) => {
+    show10Button.setAttribute("class", "buttonSelected")
+    show100Button.setAttribute("class", "buttonBase")
+    showAllButton.setAttribute("class", "buttonBase")
+    renderEventsTables(renderNumber=10) 
+});
+
+show100Button.addEventListener('click', (event) => {
+    show100Button.setAttribute("class", "buttonSelected")
+    show10Button.setAttribute("class", "buttonBase")
+    showAllButton.setAttribute("class", "buttonBase")
+    renderEventsTables(renderNumber=100) 
+});
+
+showAllButton.addEventListener('click', (event) => {
+    showAllButton.setAttribute("class", "buttonSelected")
+    show10Button.setAttribute("class", "buttonBase")
+    show100Button.setAttribute("class", "buttonBase")
+    renderEventsTables(renderNumber=data.features.length) 
+});
 
 
 // storing api call results in this object to iterate /reference later
 let data;
+let userLocationData = {};
 
 // plot constants
 const MARKERSCALEFAC = 10;
 const MAGCOLORS = ['#ffffb2','#fed976','#feb24c','#fd8d3c','#f03b20','#bd0026'];
+
+// request user geolocation
+function getLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+          userLocationData.lat = position.coords.latitude;
+          userLocationData.lon = position.coords.longitude;
+      });
+    }
+}
+getLocation()
 
 
 function fetchApiDataAndRender() {
@@ -79,8 +114,6 @@ function fetchApiDataAndRender() {
     .then(() => {
 
                   // populate the fields we need for plotting
-                  let innterHtmlStringFacts = "<tr><th>Magnitude</th><th>< 2</th><th>2</th><th>3</th><th>4</th><th>5</th><th>≥ 6</th></tr>"
-                  let innerHtmlStringEqkEvents = "<tr><th>No.</th><th>Date (YYYY-MM-DD)</th><th>Time (HH-MM-SS)</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th><th>URL</th></tr>"
                   for (let i = 0; i < data.features.length; i++) {
                       plotPayload.place.push(data.features[i].properties.place);
                       plotPayload.time.push(new Date(data.features[i].properties.time));
@@ -91,20 +124,11 @@ function fetchApiDataAndRender() {
                       plotPayload.size.push(data.features[i].properties.mag * MARKERSCALEFAC);
                       plotPayload.color.push(assignColor(data.features[i].properties.mag))
                       
-                      innerHtmlStringEqkEvents += `<tr>
-                      <td>${i}</td>
-                      <td>${plotPayload.time[i].getFullYear()}-${plotPayload.time[i].getMonth()+1}-${plotPayload.time[i].getDate()}</td>
-                      <td>${plotPayload.time[i].getHours()}-${plotPayload.time[i].getMinutes()+1}-${plotPayload.time[i].getSeconds()}</td>
-                      <td>${Math.round(plotPayload.mag[i] * 100)/100}</td>
-                      <td>${Math.round(plotPayload.lon[i] * 100)/100}</td>
-                      <td>${Math.round(plotPayload.lat[i] * 100)/100}</td>
-                      <td class=tdPlace>${plotPayload.place[i]}</td>
-                      <td><a href=${plotPayload.urls[i]} target="_blank">Main</a></td>
-                      </tr>`;
                   }
 
                   // compute magnitude counts
                   counts = countMagnitudes(plotPayload)
+                  let innterHtmlStringFacts = "<tr><th>Magnitude</th><th>< 2</th><th>2</th><th>3</th><th>4</th><th>5</th><th>≥ 6</th></tr>"
                   innterHtmlStringFacts += `<tr>
                   <td>Totals</td>
                   <td>${counts["<2"]}</td>
@@ -118,14 +142,59 @@ function fetchApiDataAndRender() {
                   // create summary table of statistics
                   document.getElementById('statisticsTable').innerHTML = innterHtmlStringFacts;
 
-                  // create summary table of events
-                  document.getElementById('entriesTable').innerHTML = innerHtmlStringEqkEvents;
+                  renderEventsTables(renderNumber=10)
   
                   // render charts
                   renderMap(plotPayload)
                   renderTimeSeriesLine(plotPayload)
                 }
     );
+}
+
+
+function renderEventsTables(renderNumber=10) {
+    
+    // initialize plot payload object
+    let plotPayload = {
+        place: [], 
+        time: [],
+        mag: [], 
+        lon: [],
+        lat: [],
+        size: [],
+        color: [],
+        urls: [],
+    }
+
+    let innerHtmlStringEqkEvents = "<tr><th>No.</th><th>Date (YYYY-MM-DD)</th><th>Time (HH-MM-SS)</th><th>Magnitude</th><th>Longitude</th><th>Lattitude</th><th>Place</th><th>URL</th></tr>"
+    for (let i = 0; i < renderNumber; i++) {
+        plotPayload.place.push(data.features[i].properties.place);
+        plotPayload.time.push(new Date(data.features[i].properties.time));
+        plotPayload.mag.push(data.features[i].properties.mag);
+        plotPayload.lon.push(data.features[i].geometry.coordinates[0]);
+        plotPayload.lat.push(data.features[i].geometry.coordinates[1]);
+        plotPayload.urls.push(data.features[i].properties.url)
+        plotPayload.size.push(data.features[i].properties.mag * MARKERSCALEFAC);
+        plotPayload.color.push(assignColor(data.features[i].properties.mag))
+        
+        innerHtmlStringEqkEvents += `<tr>
+        <td>${i}</td>
+        <td>${plotPayload.time[i].getFullYear()}-${plotPayload.time[i].getMonth()+1}-${plotPayload.time[i].getDate()}</td>
+        <td>${plotPayload.time[i].getHours()}-${plotPayload.time[i].getMinutes()+1}-${plotPayload.time[i].getSeconds()}</td>
+        <td>${Math.round(plotPayload.mag[i] * 100)/100}</td>
+        <td>${Math.round(plotPayload.lon[i] * 100)/100}</td>
+        <td>${Math.round(plotPayload.lat[i] * 100)/100}</td>
+        <td class=tdPlace>${plotPayload.place[i]}</td>
+        <td><a href=${plotPayload.urls[i]} target="_blank">Main</a></td>
+        </tr>`;
+    }
+
+    if (renderNumber < data.features.length) {
+        let tableContinues = "<td>...</td>".repeat(8);
+        innerHtmlStringEqkEvents += `<tr>${tableContinues}</tr>`
+    }
+
+    document.getElementById('entriesTable').innerHTML = innerHtmlStringEqkEvents;
 }
 
 
@@ -188,7 +257,7 @@ function assignColor(magnitude) {
 
 function renderMap(plotPayload) {
 
-    var data = [{
+    var series1 = {
         type: 'scattergeo',
         mode: 'markers+text',
         text: plotPayload.text, 
@@ -199,15 +268,43 @@ function renderMap(plotPayload) {
             color: plotPayload.color,
             line: {
                 width: 1
-            }
+            }, 
+            // colorscale:
+            // colorbar:
         },
-
-        name: 'Earthquakes',
+        name: "Earthquakes",
         textposition: [
             'top right', 'top left', 'top center', 'bottom right', 'top right',
             'top left', 'bottom right', 'bottom left', 'top right', 'top right'
         ],
-    }];
+    }
+
+    var series2 = {
+        type: 'scattergeo',
+        mode: 'markers+text',
+        text: 'Your location', 
+        lon: [userLocationData.lon], 
+        lat: [userLocationData.lat], 
+        marker: {
+            size: 14,
+            color: '#FFFC00',
+            line: {
+                width: 1
+            }
+        },
+        name: 'Your Location',
+        textposition: [
+            'top right', 'top left', 'top center', 'bottom right', 'top right',
+            'top left', 'bottom right', 'bottom left', 'top right', 'top right'
+        ],
+    }
+
+    if (userLocationData.lon) {
+        var data = [series1, series2];
+    } else {
+        var data = [series1];
+    }
+
     
     var layout = {
         autosize: false, 
@@ -232,10 +329,12 @@ function renderMap(plotPayload) {
             // scope: 'north america', // https://plotly.com/python/map-configuration/#named-map-scopes-and-country-subunits
             resolution: 50,
             lonaxis: {
-                'range': [-130, -55]
+                // 'range': [-130, -55]
+                'range': [userLocationData.lon-75/2, userLocationData.lon+75/2]
             },
             lataxis: {
-                'range': [20, 60]
+                // 'range': [20, 60]
+                'range': [userLocationData.lat-40/2, userLocationData.lat+40/2]
             },
             showrivers: true,
             rivercolor: '#fff',
@@ -246,6 +345,11 @@ function renderMap(plotPayload) {
             countrycolor: '#d3d3d3',
             countrywidth: 1.5,
             subunitcolor: '#d3d3d3'
+        },
+        legend : {
+            x: 0.05, 
+            y: 0.2,
+            xanchor:'left'
         }
     };
     

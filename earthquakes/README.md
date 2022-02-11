@@ -1,54 +1,79 @@
-https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes
+# Earthquake Events Explorer Web App
+
+#### Author: Kevin Kuei
+#### Video Demo: <URL HERE>
+#### Description: 
+
+### CS50x Final Project (also, my first time making a markdown file on Github!)
+
+Per the course website <https://cs50.harvard.edu/x/2021/project/>:
+
+>The climax of this course is its final project. The final project is your opportunity to take your newfound savvy with programming out for a spin and develop your very own piece of software. So long as your project draws upon this course’s lessons, the nature of your project is entirely up to you. You may implement your project in any language(s). You are welcome to utilize infrastructure other than the CS50 IDE. All that we ask is that you build something of interest to you, that you solve an actual problem, that you impact your community, or that you change the world. Strive to create something that outlives this course.
+
+>Inasmuch as software development is rarely a one-person effort, you are allowed an opportunity to collaborate with one or two classmates for this final project. Needless to say, it is expected that every student in any such group contribute equally to the design and implementation of that group’s project. Moreover, it is expected that the scope of a two- or three-person group’s project be, respectively, twice or thrice that of a typical one-person project. A one-person project, mind you, should entail more time and effort than is required by each of the course’s problem sets.
+
+>Creating an entire project may seem daunting. Here are some questions that you should think about as you start:
+
+  > * What will your software do? What features will it have? How will it be executed?
+
+  > * What new skills will you need to acquire? What topics will you need to research?
+
+  > * If working with one or two classmates, who will do what?
+
+  > * In the world of software, most everything takes longer to implement than you expect. And so it’s not uncommon to accomplish less in a fixed amount of time than you hope. What might you consider to be a good outcome for your project? A better outcome? The best outcome?
 
 
-Inspiration/Context:
+### Basic Application Idea
 
-* I'm a goetechnical engineer by training who does lots of seismic analysis/numerical modelling, so I wanted to do something relevant, but not overachieving. On that note, i thoguht it would be cool/fun to build something that cna visualize earthquakes. 
-* Originally I thought about doing a 'cat book riff', with ML and backend for verifying photos. this would build on some AI courses I took previously, where we build a llamma classifier, and also some of the backend python frameworks we learned about in CS50; ultimately, this was an easier project to tackle/dive right into, and that I figure could built additional features on and learn from later in the future. Also, I didn't want to complicate the project with too many components (e.g. learning React, frameworks like Flask/Django, etc.)
-* Just wanted a website with some HTML, some CSS, and some javascript, and I wanted to work with someone elses API, to just visualize data. Okay, enough about that.
-* There are several public agencies/resources from which you can access earthquake data. E.g. USGS for US, and NRCAN for Canada. USGS has an API for accessing data. To my knowledge at time of writing, NRCAN doesn't it, but they have a form input, that you can scrape the return of to get the data you need (I've done this before with python selenium module).
-* I did a lot of googling to just scrape something together, and then refined it gradually, as I got the skeleton pieces in. 
-* I started with looking at USGS's API, and playing around with getting return values, then exploring the API object fields to see what I could plot/manipulate. It was pretty straightforward from there. 
-https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
-* The main fields I'm using are features.geometry or features.properties
-* In terms of plotting packages, there are several, JSChart, D3, Plotly. I used Plotly, because it was simple, and found some clean examples. 
+* It's a simple web-based application built with vanilla HTML, CSS, and JavaScript that interfaces with the United States Geological Survey (USGS) API to retrieve GEOJSON data about earthquakes. 
+
+* The application then plots and summarizes the results for a given query on the webpage. 
+
+* The user can dynamically interact with the data to explore earthquakes near them in space and time, and apply some simple filter criteria to the request.
+
+### How it Works in General
+
+* The user specifies search filter criteria for earthquake events
+* Any value change in filter criteria triggers a callback which fetches new data with a HTTP request to the USGS API
+* The returned data is parsed into a usable format
+* That data is then plotted graphically in space and time
+* Metadata and summary statistics are tabulated in tables
+
+### Inspiration / Context
+
+* I'm a geotechnical engineer by day so I wanted to work on something relevant to my background. Since I do a lot of seismic analysis and modelling, some sort of application to view and manipulate earthquake event data seemed like a good starting idea.
+
+* For the application, I also wanted to keep things simple, because even simple ideas, can be layered upon to make them more interesting/challenging. With this in mind, the idea was to build an application which would retrieve data from an existing application programming interface (API), manipulate it, summarize, and display it. (Working with API, databases, and backend frameworks will be for future projects--I just wanted to use vanilla HTML, CSS, and Javascript).
+
+* There are several public agencies/resources from which one can acceess earthquake data. I used the USGS API to retrieve earthquake data. More documentation available here <https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php>
+
+### Process
+
+* I had a vague starting idea of what I wanted to implement. I knew I needed to understand how to request/access data with the USGS API, and that I needed a basic canvas/graphical interface to display the data. From there, I would have a few input fields where a user can influence the data being displayed.
+
+* Figuring out the API was easy with USGS's documentation, and inspecting the objects in the developer console with Chrome. 
+
+* To figure out the plotting aspects, I relied on my good friend Google to see what options there were. There are a bazillion, including D3, Chart.JS, and Plotly. I used Plotly since it was straightforward and had a lot of examples, I could adapt.
+
+* As I built the basic functionality, there were various aesthetic changes, and functional aspects that I decided to layer on. 
 
 
-How it works:
-
-* Enter filter critiera, e.g. date range, mangitute range, limit
-* The plots/meta tables should update automatically!
-* Save a figure if desired?
-
-
-Current to do:
+### Things I'm finishing up
 
 * update bubble scaling to use log scale
-* update to consider current time -> back 1 month
 * add location filter (checkbox approach), and draw box on map
-* add minimum/maximum/median/magnitudes
-
-* API queries and callback logic
-* CSS styling
-* Download CSV/save image
-* Plot the user location in the map
-* Update time to use Date.now()
-* sorting Tables
-* filter buttons for magnitude?
-* collapsible fields
-* Javascript for DOM elements
-* Function for updating plot when field update or onblick
-* Update API call to consider inputs
-* Add async await syntatic sugar | https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await
-* Responsive design
-* Try hosting on a small service provider like Heroku, Digital Ocean, Github
+* add minimum/maximum/median/magnitudes statistics
+* update on current geocenter if not first load
+* sort tables
+* refine CSS styling
+* clean refactor code
+* add async await syntatic sugar <https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await>
 
 
-Potential future feature updates:
+### How this App Can be Improved 
 
-* Add Canada earhtquakes by using info from NRCAN https://earthquakescanada.nrcan.gc.ca/stndon/NEDB-BNDS/bulletin-en.php
-* Add more visual effects, e.g. https://www.scsn.org/ for inspiration (magnitude vs date, number of earthquakes per date)
-* Add statistics / fast facts, e.g. Magnitude <2 2 3 4 5 >=6 || w/ totals... or as shown i nabove link
-
-
-
+* try hosting on a small service provider like Heroku, Digital Ocean or Github
+* optimise for responsive design
+* add other data sources / waveforms
+* add more nice visual effects, e.g. for inspiration <https://www.scsn.org/>
+* subplots for major geographic regions

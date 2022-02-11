@@ -20,16 +20,18 @@
 
     <div id="filterBox">
         <h3>Filter Settings</h3>
-        <div>
-            Min. Mag: <input type=number id=minMagBox value=3>
-            Max. Mag: <input type=number id=maxMagBox value=10>
-        </div>
-        <div>
-            Min. Date: <input type=date id=minDateBox value=2022-01-01>
-            Max. Date: <input type=date id=maxDateBox value=2022-02-01>
-        </div>
-        <div>
-            Limit: <input type=number id=limitBox value=2000>
+        <div id="magControls">
+            <div id="magControls">
+                Min. Mag: <input type=number id=minMagBox value=3>
+                Max. Mag: <input type=number id=maxMagBox value=8>
+            </div>
+            <div id="dateControls">
+                Min. Date: <input type=date id=minDateBox value=2022-01-01>
+                Max. Date: <input type=date id=maxDateBox value=2022-02-01>
+            </div>
+            <div id="limitControls">
+                Limit: <input type=number id=limitBox value=2000>
+            </div>
         </div>
     </div>
 
@@ -50,12 +52,17 @@
     </div>
     <div>
         <h3>Earthquake Events Summary</h3>
+        <div>
+            <button id="showAllButton">Show All</button>
+            <button id="show10Button">Show Fewer</button> 
+            <button id="show100Button">Show More</button>
+        </div>
         <table id=entriesTable>
         </table>
     </div>
 
     <br>
-    <div style="font-size:12;">Created by me! :)</div>
+    <footer style="font-size:12;">Created by me! :)</footer>
 
 </body>
 
