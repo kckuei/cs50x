@@ -6,7 +6,7 @@
 
 ### CS50x Final Project (also, my first time making a markdown file on Github!)
 
-Per the course website <https://cs50.harvard.edu/x/2021/project/>:
+Per the course <https://cs50.harvard.edu/x/2021/project/ website>:
 
 >The climax of this course is its final project. The final project is your opportunity to take your newfound savvy with programming out for a spin and develop your very own piece of software. So long as your project draws upon this course’s lessons, the nature of your project is entirely up to you. You may implement your project in any language(s). You are welcome to utilize infrastructure other than the CS50 IDE. All that we ask is that you build something of interest to you, that you solve an actual problem, that you impact your community, or that you change the world. Strive to create something that outlives this course.
 
