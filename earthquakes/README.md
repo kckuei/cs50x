@@ -1,7 +1,7 @@
 # Earthquake Events Explorer Web App
 
 #### Author: Kevin Kuei
-#### Video Demo: <URL HERE>
+#### Video Demo: <https://youtu.be/UtqkkDnp7Xw>
 #### Description: 
 
 ### CS50x Final Project (also, my first time making a markdown file on Github!)
@@ -66,6 +66,7 @@ Per the course website <https://cs50.harvard.edu/x/2021/project/>:
 * refine CSS styling
 * clean refactor code
 * current time window should be X weeks from current datetime
+* better handling of API calls that take too long
 * add async await syntactic sugar <https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await>
 
 
